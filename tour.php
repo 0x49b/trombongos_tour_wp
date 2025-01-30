@@ -2,13 +2,11 @@
 /*
 Plugin Name: Trombongos Tour Plugin
 Plugin URI: http://www.trombongos.ch
-Description: Dieses Plugin stellt die Tourdaten zur Verfügung. Diese werden von der API geladen.
+Description: Dieses Plugin stellt die Tourdaten zur Verfügung. Diese können über das Backend bearbeitet werden. Zudem werden diese unter der url tour.trombongos.ch den Mitgliedern zur Verfügung gestellt.
 Author: Florian Thiévent
-Version: 2.1
+Version: 2.0
 Author URI: https://www.thievent.org
 */
-
-defined('WPINC') || die();
 
 global $wpdb;
 
@@ -70,107 +68,91 @@ function tour_settings() {	  include_once(plugin_dir_path( __FILE__ )."functions
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Frontend Functions inkludieren
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
-
-function do_shortcode_tourplan() {
-   $html = '';
-   if (is_admin() || wp_doing_ajax()) {
-      // ...
-   } else {
-      // Parse the shortcode's options.
-      $url = 'https://trbapi.thievent.org/api/v1/tour/?format=json';
-      // Create a Curl Handle.
-      $ch = curl_init();
-      // Standard PHP/Curl options for a simple GET request.
-      curl_setopt($ch, CURLOPT_URL, $url);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-      // Execute the request.
-      $json_response = curl_exec($ch);
-      $response_code = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
-      // Close the Curl Handle.
-      curl_close($ch);
-      if ($response_code != 200) {
-         $html .= sprintf('<p><strong>ERROR:</strong> Got HTTP response %d from the server.</p>', $response_code);
-      } elseif (empty($json_response)) {
-         // No data returned from the server.
-         $html .= sprintf('<p><strong>ERROR:</strong> Empty respone from the server.</p>');
-      }  elseif (empty($ipsum_paragraphs = json_decode($json_response, true))) {
-         $html .= sprintf(
-            '<p><strong>ERROR:</strong> Failed to process the JSON response.</p><pre>%s</pre>',
-            esc_html($json_response)
-         );
-      } else {
-
-         $oldtitle= NULL;
-         $olddate = NULL;
-         $oldevent = NULL;
-         $i = 0;
-
-         $total_evenings = 0;
-         foreach ($ipsum_paragraphs['data'] as $date) {
-            if( $date['public']){
-               $total_evenings += $date['evening_count'];
-            }
-         }
-        
-         if($total_evenings < 1){
-            $html .= sprintf('<p>Unsere Tour %s ist leider vorbei. Wir freuen uns dich in der neuen Saison begrüssen zu dürfen.</p>', $ipsum_paragraphs['season']);
-         } else {
-
-         $html .= sprintf('
-                  <div>
-                  <h3>Unsere Tour %s</h3>
-                  <table style="border-collapse: collapse;">
-                     <tbody>
-                     <tr style="text-align: left;">
-                        <th>Datum</th>
-                        <th style="padding-left: 10px;">Anlass</th>
-                        <th style="padding-left: 10px;">Auftrittszeit</th>
-                     </tr>', $ipsum_paragraphs['season']);
-
-         foreach ($ipsum_paragraphs['data'] as $date) {
-            if ($date['evening_count'] > 0 && $date['public']) {
-                  foreach ($date['evenings'] as $evening) {
-                     if ($date['title'] != $oldtitle) {
-                  
-                        $html .= sprintf('
-                        <tr>
-                     <td colspan="3" style="background-color: #eaeaea;">%s</td>
-                     </tr>',$date['title']);
-
-                     
-                  }
-                     foreach ($evening as $event) {
-                        if ($evening["public"] == 1) {
-                              if ($evening['name'] != $oldevent && $evening['fix']) {
-                                 $html .= '<tr style="border-bottom: 1px solid black;"><td class="col-3">';
-                                 if ($evening['date'] != $olddate) {
-                                       $html .= $evening['date'];
-                                 }
-                                 $html .= sprintf('</td><td style="padding-left: 10px;">%s</td><td style="padding-left: 10px;">%s</td></tr>',$evening['name'], $evening['play']);         
-                              }
-                              $olddate  = $evening['date'];
-                              $oldevent = $evening['name'];
-                        }
-                     }
-                     $oldtitle = $date['title'];
-                  }
-            }
-            $i++;
-         }
-
-         $html .= "</tbody></table></div>";
-
-            }
-         }
-
-      }
-      return $html;
-}
-add_shortcode('tourplan', 'do_shortcode_tourplan');
-
+function tour_tourplan_front() {	include_once(plugin_dir_path( __FILE__ )."functions/frontend/tour_tourplan_front.php");}
+add_shortcode('tourplan', 'tour_tourplan_front');
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Alle Klassen aus dem Ordner <class> inkludieren
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 include_once(plugin_dir_path( __FILE__ )."class/class-tour-list-tables.php");
 
+function tourdaten_shortcode() {
+    // Fetch the API response using wp_remote_get for better handling of HTTP requests in WordPress
+    $response = wp_remote_get('https://trbapi.flind.ch/api/v1/tour/?format=json');
+
+    // Check if the request was successful
+    if (is_wp_error($response)) {
+        return 'Failed to retrieve data.';
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    $res = json_decode($body, true);
+
+    // Check if the response contains valid JSON
+    if ($res === null || !isset($res['data'])) {
+        return 'Invalid response format.';
+    }
+
+    $dates = $res['data'];
+    $oldtitle = NULL;
+    $olddate = NULL;
+    $oldevent = NULL;
+    $i = 0;
+
+    // To prevent multiple appearances of "1. Wochenende"
+    $weekend_shown = false;
+
+    // Start building the HTML content as a string
+    $output = "
+    <div class=\"col-md-12\">
+    <h3 class=\"wp-block-heading\">Tourdaten " . esc_html($res['season']) . "</h3>
+    <table class=\"table table-sm table-responsive\">
+        <tbody>
+        <tr>
+            <th class=\"col-3\" style=\"border-top: 1px solid black\">Datum</th>
+            <th class=\"col-8\" style=\"border-top: 1px solid black\">Anlass</th>
+            <th class=\"col-1\" style=\"border-top: 1px solid black\">Auftrittszeit</th>
+        </tr>";
+
+    // Loop through dates
+    foreach ($dates as $date) {
+        if ($date['evening_count'] > 0 && $date['public']) {
+            foreach ($date['evenings'] as $evening) {
+				if (isset($dates[$i]['title']) && $dates[$i]['title'] != $oldtitle) {
+                    $output .= "<tr class=\"bg-secondary text-light\">";
+					$output .= "<td colspan=\"3\" style=\"background-color: #d1d1d1\" class=\"col-sm-12 col-12 bg-secondary text-light\">" . esc_html($dates[$i]['title']) . "</td>";
+					$output .= "</tr>";
+					$oldtitle = $dates[$i]['title'];
+                }
+
+                if ($evening["public"] == 1 && isset($evening['fix']) && $evening['fix']) {
+                    $output .= "<tr>
+                        <td class=\"col-3\">";
+                    if (isset($evening['date']) && $evening['date'] != $olddate) {
+                        $output .= esc_html($evening['date']);
+                    }
+                    $output .= "</td>
+                        <td class=\"col-8 \" style=\"padding-left: 1em;\">" . esc_html($evening['name']) . "</td>
+                        <td class=\"col-1\" style=\"padding-left: 1em;\">" . esc_html($evening['play']) . "</td>
+                    </tr>";
+
+                }
+                $olddate = $evening['date'] ?? null;
+                $oldevent = $evening['name'] ?? null;
+            }
+            $oldtitle = $dates[$i]['title'];
+        }
+        $i++;
+    }
+
+    $output .= "
+        </tbody>
+    </table>
+    </div>";
+
+    // Return the generated HTML content
+    return $output;
+}
+
+// Register the shortcode
+add_shortcode('tourdaten', 'tourdaten_shortcode');
