@@ -94,7 +94,7 @@ function tour_setup_admin_menus()
         'Trombongos Tour',
         TOUR_MENU_CAPABILITY,
         'trb_tour',
-        'tour_overview_ng',
+        'tour_overview',
         'dashicons-megaphone'
     );
 
@@ -103,7 +103,7 @@ function tour_setup_admin_menus()
         'Neue Saison',
         'Saisons',
         TOUR_MENU_CAPABILITY,
-        'add_season_ng',
+        'add_season',
         'tour_season_view'
     );
 
