@@ -1,18 +1,9 @@
 name: 🎺 Deploy Tour Plugin to TEST Website
 on:
   workflow_dispatch:
-    inputs:
-        dryRun:
-            type: choice
-            options:
-              - 'true'
-              - 'false'
-            description: "Let it run dry"
-            required: true
-            default: 'true'
-#  pull_request:
-#    branches:
-#      - 'master'
+  pull_request:
+    branches:
+      - 'master'
 jobs:
   web-deploy:
     name: 🎉 Deploy
@@ -31,4 +22,3 @@ jobs:
         local-dir: ./
         server-dir: ./wp-content/plugins/trombongos_tour_wp/
         exclude: .git*/**
-        dry-run: ${{ github.event.inputs.dryRun }}
