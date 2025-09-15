@@ -177,31 +177,6 @@ add_action('rest_api_init', function () {
         'permission_callback' => '__return_true',
     ));
 
-    register_rest_route( TOUR_REST_BASE, '/author/(?P<id>\d+)', array(
-        'methods'             => 'GET',
-        'callback'            => function (WP_REST_Request $request) {
-            $author_id = (int) $request['id'];
-            $posts = get_posts(array(
-                'author'      => $author_id,
-                'numberposts' => 1,
-                'orderby'     => 'date',
-                'order'       => 'DESC',
-            ));
-
-            if (empty($posts)) {
-                return rest_ensure_response([]);
-            }
-
-            $p = $posts[0];
-            return rest_ensure_response(array(
-                'ID'    => $p->ID,
-                'title' => get_the_title($p),
-                'link'  => get_permalink($p),
-            ));
-        },
-        // Public read is fine here; tighten if you need.
-        'permission_callback' => '__return_true',
-    ));
 });
 
 
