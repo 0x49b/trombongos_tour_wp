@@ -49,8 +49,8 @@ function tour_create_database_tables()
     $sql = "CREATE TABLE `" . TOUR_SAISON . "` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(9) NOT NULL,
-    `start` DATE NULL DEFAULT NULL,
-    `end`   DATE NULL DEFAULT NULL,
+    `season_start` DATE NULL DEFAULT NULL,
+    `season_end`   DATE NULL DEFAULT NULL,
     `active` TINYINT(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`)
     ) $charset_collate;";
