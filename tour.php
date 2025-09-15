@@ -71,17 +71,17 @@ register_activation_hook(__FILE__, 'tour_plugin_activation');
 					Plugin Scripts & Styles (Backend)
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 
-function tour_scripts_backend()
-{
+//function tour_scripts_backend()
+//{
 
     // Tour Script
     //wp_register_script( 'tour-script', plugins_url('/tour/functions/backend/js/backend.js'), false, '1.0', false );
     //wp_enqueue_script( 'tour-script');
 
     //wp_enqueue_script( 'jquery-ui-datepicker' );
-}
+//}
 
-add_action('init', 'tour_scripts_backend');
+//add_action('init', 'tour_scripts_backend');
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Admin Seite einrichten (im Backend in der linken Spalte)
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
