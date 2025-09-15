@@ -62,7 +62,7 @@ function tour_create_database_tables()
 
 function tour_plugin_activation()
 {
-    //tour_create_database_tables();
+    tour_create_database_tables();
 }
 
 register_activation_hook(__FILE__, 'tour_plugin_activation');
