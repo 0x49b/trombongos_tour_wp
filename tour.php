@@ -169,7 +169,10 @@ add_action('rest_api_init', function () {
     register_rest_route(TOUR_REST_BASE, '/saison', array(
         'methods' => 'GET',
         'callback' => function(WP_REST_Request $request){
-            return rest_ensure_response('9998/9999');
+            return rest_ensure_response(array(
+                'saison' => '9998/9999',
+                'active' => true
+            ));
         },
         'permission_callback' => '__return_true',
     ));
