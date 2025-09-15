@@ -29,6 +29,6 @@ jobs:
         password: ${{ secrets.PASSWORD_PROD }}
         dangerous-clean-slate: true
         local-dir: ./
-        server-dir: ./httpsdocs/wp-content/plugins/trombongos_tour_wp
+        server-dir: ./httpsdocs/wp-content/plugins/trombongos_tour_wp/
         exclude: .github/**
         dry-run: ${{ github.event.inputs.dryRun }}
