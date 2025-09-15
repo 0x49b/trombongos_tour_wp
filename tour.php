@@ -46,13 +46,13 @@ function tour_create_database_tables()
     /**
      * Create Saison Table
      */
-    $sql = "CREATE TABLE " . TOUR_SAISON . " (
-      id int NOT NULL AUTO_INCREMENT,
-      name varchar(9) NOT NULL,
-      start date DEFAULT '0000-00-00 00:00:00' NOT NULL,
-      end date DEFAULT '0000-00-00 00:00:00' NOT NULL,
-      active tinyint(1) DEFAULT '0' NOT NULL,
-      PRIMARY KEY  (id)
+    $sql = "CREATE TABLE `" . TOUR_SAISON . "` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(9) NOT NULL,
+    `start` DATE NULL DEFAULT NULL,
+    `end`   DATE NULL DEFAULT NULL,
+    `active` TINYINT(1) NOT NULL DEFAULT 0,
+    PRIMARY KEY (`id`)
     ) $charset_collate;";
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -153,10 +153,14 @@ function my_awesome_func($data)
     ));
 
     if (empty($posts)) {
-        return null;
+        return [];
     }
 
-    return $posts[0];
+    return [
+        'ID'    => $posts[0]->ID,
+        'title' => get_the_title($posts[0]),
+        'link'  => get_permalink($posts[0]),
+        ];
 }
 
 add_action('rest_api_init', function () {
