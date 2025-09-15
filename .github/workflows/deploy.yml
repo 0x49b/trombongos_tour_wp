@@ -1,6 +1,11 @@
 name: 🎺 Deploy Tour Plugin to Website
 on:
   workflow_dispatch:
+    inputs:
+        dryRun:
+            description: "Let it run dry"
+            required: true
+            default: 'true'
 #  pull_request:
 #    branches:
 #      - 'master'
@@ -21,3 +26,4 @@ jobs:
         dangerous-clean-slate: true
         local-dir: ./
         exclude: .github/**
+        dry-run: ${{ github.event.inputs.dryRun }}
