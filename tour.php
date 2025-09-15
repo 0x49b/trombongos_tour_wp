@@ -20,6 +20,7 @@ global $wpdb;
 
 define('TOUR_MENU_CAPABILITY', 'manage_options');
 define('TOUR_DATA_SHORTCODE', 'tourdaten');
+define('TOUR_REST_BASE', 'trombongos/v1');
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Datenbank Konstanten definieren
@@ -164,7 +165,16 @@ function my_awesome_func($data)
 }
 
 add_action('rest_api_init', function () {
-    register_rest_route('trombongos/v1', '/author/(?P<id>\d+)', array(
+
+    register_rest_route(TOUR_REST_BASE, '/saison', array(
+        'methods' => 'GET',
+        'callback' => function(WP_REST_Request $request){
+            return rest_ensure_response('9998/9999');
+        },
+        'permission_callback' => '__return_true',
+    ));
+
+    register_rest_route( TOUR_REST_BASE, '/author/(?P<id>\d+)', array(
         'methods'             => 'GET',
         'callback'            => function (WP_REST_Request $request) {
             $author_id = (int) $request['id'];
