@@ -1,4 +1,4 @@
-name: 🎺 Deploy Tour Plugin to Website
+name: 🎺 Deploy Tour Plugin to TEST Website
 on:
   workflow_dispatch:
     inputs:
@@ -25,10 +25,10 @@ jobs:
       uses: webitsbr/github-to-ftp@1.0.1
       with:
         server: ${{ secrets.SERVER }}
-        username: ${{ secrets.USER_PROD }}
-        password: ${{ secrets.PASSWORD_PROD }}
+        username: ${{ secrets.USER_TEST }}
+        password: ${{ secrets.PASSWORD_TEST }}
         dangerous-clean-slate: true
         local-dir: ./
-        server-dir: ./httpsdocs/wp-content/plugins/trombongos_tour_wp/
+        server-dir: ./wp-content/plugins/trombongos_tour_wp/
         exclude: .github/**
         dry-run: ${{ github.event.inputs.dryRun }}
