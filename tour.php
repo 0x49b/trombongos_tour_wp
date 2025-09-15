@@ -37,7 +37,7 @@ define('TOURTRANSPORT', $wpdb->prefix . 'transport');       // TransportMapping
 					Plugin Activation Hook
                     1. Datenbanktabellen anlegen
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
-function tour_create_database_tables()
+function tbgs_tour_create_database_tables()
 {
 
     global $wpdb;
@@ -60,7 +60,7 @@ function tour_create_database_tables()
 
 }
 
-function tour_plugin_activation()
+function tbgs_tour_plugin_activation()
 {
     tour_create_database_tables();
 }
@@ -71,7 +71,7 @@ register_activation_hook(__FILE__, 'tour_plugin_activation');
 					Plugin Scripts & Styles (Backend)
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 
-//function tour_scripts_backend()
+//function tbgs_tour_scripts_backend()
 //{
 
     // Tour Script
@@ -86,7 +86,7 @@ register_activation_hook(__FILE__, 'tour_plugin_activation');
 					Admin Seite einrichten (im Backend in der linken Spalte)
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 
-function tour_setup_admin_menus()
+function tbgs_tour_setup_admin_menus()
 {
 
     add_menu_page(
@@ -114,14 +114,14 @@ add_action("admin_menu", "tour_setup_admin_menus");
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Admin Functions inkludieren
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
-function tour_overview()
+function tbgs_tour_overview()
 {
     if (is_admin()) {
         include_once(plugin_dir_path(__FILE__) . "admin/tour_overview.php");
     }
 }
 
-function tour_season_view()
+function tbgs_tour_season_view()
 {
     if (is_admin()) {
         include_once __DIR__ . "/admin/tour_season_view.php";
