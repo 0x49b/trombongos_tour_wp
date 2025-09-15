@@ -3,6 +3,10 @@ on:
   workflow_dispatch:
     inputs:
         dryRun:
+            type: choice
+            options:
+              - 'true'
+              - 'false'
             description: "Let it run dry"
             required: true
             default: 'true'
