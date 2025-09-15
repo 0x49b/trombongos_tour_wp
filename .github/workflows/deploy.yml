@@ -20,6 +20,4 @@ jobs:
         password: ${{ secrets.PASSWORD_PROD }}
         dangerous-clean-slate: true
         local-dir: ./
-        exclude:
-          - **/.git*
-          - .github/*
+        exclude: .github/**
