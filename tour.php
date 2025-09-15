@@ -25,13 +25,13 @@ define('TOUR_DATA_SHORTCODE', 'tourdaten');
 					Datenbank Konstanten definieren
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 
-define('TOUR_SAISON', $wpdb->prefix . "tour_saison");        // Saison
+define('TOUR_SAISON', $wpdb->prefix . "tour_saison");       // Saison
 
-define('TOURTERMINE', $wpdb->prefix . 'termine');        // Auftrittstermine
-define('TOURDATUM', $wpdb->prefix . 'datum');                // Daten
-define('TOURTAGE', $wpdb->prefix . 'tage');                // TageMapping
-define('TOURGRUPPEN', $wpdb->prefix . 'tage_gruppen');    // Tage - Gruppen Mapping
-define('TOURTRANSPORT', $wpdb->prefix . 'transport');        // TransportMapping
+define('TOURTERMINE', $wpdb->prefix . 'termine');           // Auftrittstermine
+define('TOURDATUM', $wpdb->prefix . 'datum');               // Daten
+define('TOURTAGE', $wpdb->prefix . 'tage');                 // TageMapping
+define('TOURGRUPPEN', $wpdb->prefix . 'tage_gruppen');      // Tage - Gruppen Mapping
+define('TOURTRANSPORT', $wpdb->prefix . 'transport');       // TransportMapping
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Plugin Activation Hook
@@ -62,7 +62,7 @@ function tour_create_database_tables()
 
 function tour_plugin_activation()
 {
-    tour_create_database_tables();
+    //tour_create_database_tables();
 }
 
 register_activation_hook(__FILE__, 'tour_plugin_activation');
@@ -143,7 +143,7 @@ add_shortcode(TOUR_DATA_SHORTCODE, 'tourdaten_shortcode');
 /**
  * Grab latest post by author
  * @param array $data Options for the function.
- * @return string|null Post title for the latest,  * or null if none.
+ * @return string|null Post title for the latest, * or null if none.
  */
 function my_awesome_func($data)
 {
