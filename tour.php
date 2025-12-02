@@ -226,19 +226,27 @@ register_activation_hook(__FILE__, 'tour_plugin_activation');
 
 function tourdaten_shortcode()
 {
-    // Fetch the API response from local WordPress REST API
-    $response = wp_remote_get(rest_url('tour/v1/tour'));
+    // Call the API function directly instead of making HTTP request
+    // This avoids permalink/REST URL issues
+    $request = new WP_REST_Request('GET', '/tour/v1/tour');
+    $response = tour_api_get_tour_data($request);
 
-    // Check if the request was successful
+    // Check if the response is an error
     if (is_wp_error($response)) {
-        return 'Failed to retrieve data.';
+        error_log('Shortcode API Error: ' . $response->get_error_message());
+        return 'Failed to retrieve data: ' . $response->get_error_message();
     }
 
-    $body = wp_remote_retrieve_body($response);
-    $res = json_decode($body, true);
+    // Get data from REST response object
+    if (is_a($response, 'WP_REST_Response')) {
+        $res = $response->get_data();
+    } else {
+        $res = $response;
+    }
 
-    // Check if the response contains valid JSON
-    if ($res === null || !isset($res['data'])) {
+    // Check if the response contains valid data
+    if (!is_array($res) || !isset($res['data'])) {
+        error_log('Invalid response format from API function');
         return 'Invalid response format.';
     }
 
