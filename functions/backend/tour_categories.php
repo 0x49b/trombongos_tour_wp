@@ -306,7 +306,7 @@ $categories = $wpdb->get_results($query, ARRAY_A);
                     <?php if (empty($categories)): ?>
                         <p>Keine Kategorien gefunden. Fügen Sie eine neue Kategorie hinzu.</p>
                     <?php else: ?>
-                        <table class="wp-list-table widefat fixed striped">
+                        <table class="wp-list-table widefat striped">
                             <thead>
                                 <tr>
                                     <th>Titel</th>

@@ -91,8 +91,8 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
 
             <div class="postbox" style="padding: 15px;">
                 <h3 style="margin: 0 0 10px 0;">
-                    <span class="dashicons dashicons-calendar-alt" style="color: #2271b1;"></span>
-                    <?php echo $filter_season > 0 ? 'Gefilterte Saison' : 'Aktive Saison'; ?>
+                    <span class="dashicons dashicons-calendar-alt stat-icon" style="color: #2271b1;"></span>
+                    <?php echo $filter_season > 0 && $display_season['active'] != '1'? 'Saison <span class="filter-active">Filter aktiv</span>' : 'Saison'; ?>
                 </h3>
                 <p style="font-size: 24px; margin: 0; font-weight: bold;">
                     <?php
@@ -107,7 +107,7 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
 
             <div class="postbox" style="padding: 15px;">
                 <h3 style="margin: 0 0 10px 0;">
-                    <span class="dashicons dashicons-tickets-alt" style="color: #00a32a;"></span>
+                    <span class="dashicons dashicons-tickets-alt stat-icon" style="color: #00a32a;"></span>
                     Kommende Auftritte
                 </h3>
                 <p style="font-size: 24px; margin: 0; font-weight: bold;">
@@ -120,7 +120,7 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
 
             <div class="postbox" style="padding: 15px;">
                 <h3 style="margin: 0 0 10px 0;">
-                    <span class="dashicons dashicons-yes-alt" style="color: #dba617;"></span>
+                    <span class="dashicons dashicons-yes-alt stat-icon" style="color: #dba617;"></span>
                     Bestätigte Auftritte
                 </h3>
                 <p style="font-size: 24px; margin: 0; font-weight: bold;">
@@ -130,7 +130,7 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
 
             <div class="postbox" style="padding: 15px;">
                 <h3 style="margin: 0 0 10px 0;">
-                    <span class="dashicons dashicons-visibility" style="color: #7e8993;"></span>
+                    <span class="dashicons dashicons-visibility stat-icon" style="color: #7e8993;"></span>
                     Öffentliche Auftritte
                 </h3>
                 <p style="font-size: 24px; margin: 0; font-weight: bold;">

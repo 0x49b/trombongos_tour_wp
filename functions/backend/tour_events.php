@@ -24,12 +24,10 @@ if (isset($_POST['tour_event_action'])) {
         $organizer = !empty($_POST['organizer']) ? sanitize_text_field($_POST['organizer']) : null;
         $location = !empty($_POST['location']) ? sanitize_text_field($_POST['location']) : null;
         $play = sanitize_text_field($_POST['play']);
-        $assembly = !empty($_POST['assembly']) ? sanitize_text_field($_POST['assembly']) : null;
-        $loadup = !empty($_POST['loadup']) ? sanitize_text_field($_POST['loadup']) : null;
-        $departure = !empty($_POST['departure']) ? sanitize_text_field($_POST['departure']) : null;
-        $soundcheck = !empty($_POST['soundcheck']) ? sanitize_text_field($_POST['soundcheck']) : null;
-        $dinner = !empty($_POST['dinner']) ? sanitize_text_field($_POST['dinner']) : null;
-        $ending = !empty($_POST['ending']) ? sanitize_text_field($_POST['ending']) : null;
+        $gathering = !empty($_POST['gathering']) ? sanitize_text_field($_POST['gathering']) : null;
+        $makeup = !empty($_POST['makeup']) ? sanitize_text_field($_POST['makeup']) : null;
+        $warehouse = !empty($_POST['warehouse']) ? sanitize_text_field($_POST['warehouse']) : null;
+        $sun = !empty($_POST['sun']) ? sanitize_text_field($_POST['sun']) : null;
         $meal = isset($_POST['meal']) ? 1 : 0;
         $drinks = isset($_POST['drinks']) ? 1 : 0;
         $trailer = !empty($_POST['trailer']) ? sanitize_text_field($_POST['trailer']) : null;
@@ -72,12 +70,10 @@ if (isset($_POST['tour_event_action'])) {
                     'organizer' => $organizer,
                     'location' => $location,
                     'play' => $play,
-                    'assembly' => $assembly,
-                    'loadup' => $loadup,
-                    'departure' => $departure,
-                    'soundcheck' => $soundcheck,
-                    'dinner' => $dinner,
-                    'ending' => $ending,
+                    'gathering' => $gathering,
+                    'makeup' => $makeup,
+                    'warehouse' => $warehouse,
+                    'sun' => $sun,
                     'meal' => $meal,
                     'drinks' => $drinks,
                     'trailer' => $trailer,
@@ -87,7 +83,7 @@ if (isset($_POST['tour_event_action'])) {
                     'info' => $info,
                 );
 
-                $format = array('%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s');
+                $format = array('%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s');
             } else {
                 $data = array(
                     'name' => $name,
@@ -100,12 +96,10 @@ if (isset($_POST['tour_event_action'])) {
                     'organizer' => $organizer,
                     'location' => $location,
                     'play' => $play,
-                    'assembly' => $assembly,
-                    'loadup' => $loadup,
-                    'departure' => $departure,
-                    'soundcheck' => $soundcheck,
-                    'dinner' => $dinner,
-                    'ending' => $ending,
+                    'gathering' => $gathering,
+                    'makeup' => $makeup,
+                    'warehouse' => $warehouse,
+                    'sun' => $sun,
                     'meal' => $meal,
                     'drinks' => $drinks,
                     'trailer' => $trailer,
@@ -115,7 +109,7 @@ if (isset($_POST['tour_event_action'])) {
                     'info' => $info,
                 );
 
-                $format = array('%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s');
+                $format = array('%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s');
             }
 
             if ($action === 'add') {
@@ -384,28 +378,20 @@ if (!$form_mode) {
                                         <td><input type="time" name="play" id="play" value="<?php echo $edit_event ? esc_attr($edit_event['play']) : ''; ?>" required></td>
                                     </tr>
                                     <tr>
-                                        <th><label for="assembly">Besammlung</label></th>
-                                        <td><input type="time" name="assembly" id="assembly" value="<?php echo $edit_event ? esc_attr($edit_event['assembly']) : ''; ?>"></td>
+                                        <th><label for="gathering">Besammlung</label></th>
+                                        <td><input type="time" name="gathering" id="gathering" value="<?php echo $edit_event ? esc_attr($edit_event['gathering']) : ''; ?>"></td>
                                     </tr>
                                     <tr>
-                                        <th><label for="loadup">Verlad</label></th>
-                                        <td><input type="time" name="loadup" id="loadup" value="<?php echo $edit_event ? esc_attr($edit_event['loadup']) : ''; ?>"></td>
+                                        <th><label for="makeup">Schminken</label></th>
+                                        <td><input type="time" name="makeup" id="makeup" value="<?php echo $edit_event ? esc_attr($edit_event['makeup']) : ''; ?>"></td>
                                     </tr>
                                     <tr>
-                                        <th><label for="departure">Abfahrt</label></th>
-                                        <td><input type="time" name="departure" id="departure" value="<?php echo $edit_event ? esc_attr($edit_event['departure']) : ''; ?>"></td>
+                                        <th><label for="warehouse">Magazin</label></th>
+                                        <td><input type="time" name="warehouse" id="warehouse" value="<?php echo $edit_event ? esc_attr($edit_event['warehouse']) : ''; ?>"></td>
                                     </tr>
                                     <tr>
-                                        <th><label for="soundcheck">Soundcheck</label></th>
-                                        <td><input type="time" name="soundcheck" id="soundcheck" value="<?php echo $edit_event ? esc_attr($edit_event['soundcheck']) : ''; ?>"></td>
-                                    </tr>
-                                    <tr>
-                                        <th><label for="dinner">Abendessen</label></th>
-                                        <td><input type="time" name="dinner" id="dinner" value="<?php echo $edit_event ? esc_attr($edit_event['dinner']) : ''; ?>"></td>
-                                    </tr>
-                                    <tr>
-                                        <th><label for="ending">Ende (erwartet)</label></th>
-                                        <td><input type="time" name="ending" id="ending" value="<?php echo $edit_event ? esc_attr($edit_event['ending']) : ''; ?>"></td>
+                                        <th><label for="sun">Sonne</label></th>
+                                        <td><input type="time" name="sun" id="sun" value="<?php echo $edit_event ? esc_attr($edit_event['sun']) : ''; ?>"></td>
                                     </tr>
                                 </table>
                             </div>
