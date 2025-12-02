@@ -4,7 +4,7 @@ Plugin Name: Trombongos Tour Plugin
 Plugin URI: http://www.trombongos.ch
 Description: Dieses Plugin stellt die Tourdaten zur Verfügung. Diese können über das Backend bearbeitet werden. Zudem werden diese unter der url tour.trombongos.ch den Mitgliedern zur Verfügung gestellt.
 Author: Florian Thiévent
-Version: 2.0
+Version: 3.0
 Author URI: https://www.thievent.org
 */
 
@@ -18,13 +18,10 @@ global $wpdb;
 					Datenbank Konstanten definieren
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 
-define('TOUR_SAISON', $wpdb->prefix . "tour_saison");        // Saison
-
-define('TOURTERMINE', $wpdb->prefix . 'termine');        // Auftrittstermine
-define('TOURDATUM', $wpdb->prefix . 'datum');                // Daten
-define('TOURTAGE', $wpdb->prefix . 'tage');                // TageMapping
-define('TOURGRUPPEN', $wpdb->prefix . 'tage_gruppen');    // Tage - Gruppen Mapping
-define('TOURTRANSPORT', $wpdb->prefix . 'transport');        // TransportMapping
+define('TOUR_SEASONS', $wpdb->prefix . 'tour_seasons');
+define('TOUR_CATEGORIES', $wpdb->prefix . 'tour_categories');
+define('TOUR_TRANSPORTS', $wpdb->prefix . 'tour_transports');
+define('TOUR_EVENTS', $wpdb->prefix . 'tour_events');
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Plugin Scripts & Styles (Backend)
@@ -50,21 +47,28 @@ add_action("admin_menu", "setup_theme_admin_menus");
 
 function setup_theme_admin_menus()
 {
-
     add_menu_page('Trombongos Tour', 'Trombongos Tour', 'manage_options',
         'trb_tour', 'tour_overview', 'dashicons-calendar-alt');
 
-
-    /*
     add_submenu_page('trb_tour',
-        'Auftritt hinzufügen', 'Neuer Auftritt', 'manage_options',
-        'add_event', 'tour_add_event');
-
+        'Übersicht', 'Übersicht', 'manage_options',
+        'trb_tour', 'tour_overview');
 
     add_submenu_page('trb_tour',
-        'Einstellungen', 'Einstellungen', 'manage_options',
-        'settings', 'tour_settings');
-    */
+        'Auftritte', 'Auftritte', 'manage_options',
+        'tour_events', 'tour_events_page');
+
+    add_submenu_page('trb_tour',
+        'Kategorien', 'Kategorien', 'manage_options',
+        'tour_categories', 'tour_categories_page');
+
+    add_submenu_page('trb_tour',
+        'Saisons', 'Saisons', 'manage_options',
+        'tour_seasons', 'tour_seasons_page');
+
+    add_submenu_page('trb_tour',
+        'Transport', 'Transport', 'manage_options',
+        'tour_transports', 'tour_transports_page');
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
@@ -75,14 +79,24 @@ function tour_overview()
     include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_overview.php");
 }
 
-function tour_add_event()
+function tour_events_page()
 {
-    include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_new.php");
+    include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_events.php");
 }
 
-function tour_settings()
+function tour_categories_page()
 {
-    include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_settings.php");
+    include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_categories.php");
+}
+
+function tour_seasons_page()
+{
+    include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_seasons.php");
+}
+
+function tour_transports_page()
+{
+    include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_transports.php");
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
@@ -101,30 +115,105 @@ add_shortcode('tourplan', 'tour_tourplan_front');
 include_once(plugin_dir_path(__FILE__) . "class/class-tour-list-tables.php");
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
+					REST API inkludieren
+\*--------------------------------------------------------------------------------------------------------------------------------------------*/
+include_once(plugin_dir_path(__FILE__) . "functions/api/tour-api.php");
+
+/*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Plugin Activation Hook
                     1. Datenbanktabellen anlegen
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 function tour_create_database_tables()
 {
-
     global $wpdb;
     $charset_collate = $wpdb->get_charset_collate();
 
-    /**
-     * Create Saison Table
-     */
-    $sql = "CREATE TABLE " . TOUR_SAISON . " (
-      id int NOT NULL AUTO_INCREMENT,
-      name varchar(9) NOT NULL,
-      start date DEFAULT '0000-00-00 00:00:00' NOT NULL,
-      end date DEFAULT '0000-00-00 00:00:00' NOT NULL,
-      active tinyint(1) DEFAULT '0' NOT NULL,
-      PRIMARY KEY  (id)
-    ) $charset_collate;";
-
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
 
+    // Create Seasons Table
+    $sql_seasons = "CREATE TABLE " . TOUR_SEASONS . " (
+      id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+      uuid CHAR(36) NOT NULL,
+      name VARCHAR(9) NOT NULL,
+      start_date DATE NOT NULL,
+      end_date DATE NOT NULL,
+      active TINYINT(1) DEFAULT 0 NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY uuid (uuid),
+      KEY active (active)
+    ) $charset_collate;";
+    dbDelta($sql_seasons);
+
+    // Create Transports Table
+    $sql_transports = "CREATE TABLE " . TOUR_TRANSPORTS . " (
+      id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+      uuid CHAR(36) NOT NULL,
+      name VARCHAR(255) NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY uuid (uuid)
+    ) $charset_collate;";
+    dbDelta($sql_transports);
+
+    // Create Categories Table
+    $sql_categories = "CREATE TABLE " . TOUR_CATEGORIES . " (
+      id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+      uuid CHAR(36) NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      date_start DATE NOT NULL,
+      date_end DATE NOT NULL,
+      public TINYINT(1) DEFAULT 1 NOT NULL,
+      sort INT DEFAULT 0 NOT NULL,
+      season_id BIGINT(20) UNSIGNED NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY uuid (uuid),
+      KEY season_id (season_id),
+      KEY sort (sort)
+    ) $charset_collate;";
+    dbDelta($sql_categories);
+
+    // Create Events Table
+    $sql_events = "CREATE TABLE " . TOUR_EVENTS . " (
+      id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+      uuid CHAR(36) NOT NULL,
+      name VARCHAR(255) NOT NULL,
+      category_id BIGINT(20) UNSIGNED NOT NULL,
+      transport_id BIGINT(20) UNSIGNED DEFAULT NULL,
+      date DATE NOT NULL,
+      day TINYINT NOT NULL,
+      sort INT DEFAULT 0 NOT NULL,
+      type TINYINT DEFAULT 0 NOT NULL,
+      organizer VARCHAR(255) DEFAULT NULL,
+      location VARCHAR(255) DEFAULT NULL,
+      play TIME NOT NULL,
+      assembly TIME DEFAULT NULL,
+      loadup TIME DEFAULT NULL,
+      departure TIME DEFAULT NULL,
+      soundcheck TIME DEFAULT NULL,
+      dinner TIME DEFAULT NULL,
+      ending TIME DEFAULT NULL,
+      meal TINYINT(1) DEFAULT 0 NOT NULL,
+      drinks TINYINT(1) DEFAULT 0 NOT NULL,
+      trailer VARCHAR(255) DEFAULT NULL,
+      cert TINYINT DEFAULT NULL,
+      fix TINYINT(1) DEFAULT 0 NOT NULL,
+      public TINYINT(1) DEFAULT 0 NOT NULL,
+      info TEXT DEFAULT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY uuid (uuid),
+      KEY category_id (category_id),
+      KEY transport_id (transport_id),
+      KEY date (date),
+      KEY event_query (public, fix, date)
+    ) $charset_collate;";
+    dbDelta($sql_events);
 }
 
 function tour_plugin_activation()
@@ -137,8 +226,8 @@ register_activation_hook(__FILE__, 'tour_plugin_activation');
 
 function tourdaten_shortcode()
 {
-    // Fetch the API response using wp_remote_get for better handling of HTTP requests in WordPress
-    $response = wp_remote_get('https://trbapi.flind.ch/api/v1/tour/?format=json');
+    // Fetch the API response from local WordPress REST API
+    $response = wp_remote_get(rest_url('tour/v1/tour'));
 
     // Check if the request was successful
     if (is_wp_error($response)) {
@@ -220,7 +309,7 @@ add_shortcode('tourdaten', 'tourdaten_shortcode');
 /**
  * Grab latest post by author
  * @param array $data Options for the function.
- * @return string|null Post title for the latest,  * or null if none.
+ * @return string|null Post title for the latest, * or null if none.
  */
 function my_awesome_func($data)
 {
