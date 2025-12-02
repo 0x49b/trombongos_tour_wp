@@ -1,0 +1,29 @@
+/**
+ * Trombongos Tour Plugin - Admin Styles
+ */
+
+/* Fix postbox header spacing */
+.postbox .postbox-header h2 {
+    padding: 17px 12px;
+    margin: 0;
+
+}
+
+/* Ensure consistent spacing for all postbox headers */
+.postbox .postbox-header {
+    border-bottom: 1px solid #c3c4c7;
+}
+
+/* Fix spacing in postbox content */
+.postbox .inside {
+    margin: 0;
+    padding: 12px;
+}
+
+.filter-active{
+    color: #ff0061;
+    font-size: 0.7rem;
+}
+.stat-icon{
+    line-height: 0.7em;
+}
