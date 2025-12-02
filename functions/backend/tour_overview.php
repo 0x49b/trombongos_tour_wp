@@ -173,6 +173,7 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
                         </table>
                         <p style="margin-top: 10px;">
                             <a href="<?php echo admin_url('admin.php?page=tour_events'); ?>" class="button">Alle Auftritte anzeigen</a>
+                            <a href="<?php echo admin_url('admin.php?page=tour_events&action=add'); ?>" class="button">Neuen Auftritt hinzufügen</a></p>
                         </p>
                     <?php endif; ?>
                 </div>
@@ -180,18 +181,6 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
 
             <!-- Quick Links & Info -->
             <div>
-                <div class="postbox">
-                    <div class="postbox-header">
-                        <h2>Schnellzugriff</h2>
-                    </div>
-                    <div class="inside">
-                        <p><a href="<?php echo admin_url('admin.php?page=tour_events&action=add'); ?>" class="button button-primary" style="width: 100%; text-align: center;">Neuen Auftritt hinzufügen</a></p>
-                        <p><a href="<?php echo admin_url('admin.php?page=tour_events'); ?>" class="button" style="width: 100%; text-align: center;">Alle Auftritte</a></p>
-                        <p><a href="<?php echo admin_url('admin.php?page=tour_categories'); ?>" class="button" style="width: 100%; text-align: center;">Kategorien verwalten</a></p>
-                        <p><a href="<?php echo admin_url('admin.php?page=tour_seasons'); ?>" class="button" style="width: 100%; text-align: center;">Saisons verwalten</a></p>
-                    </div>
-                </div>
-
                 <div class="postbox">
                     <div class="postbox-header">
                         <h2>Statistiken & Filter</h2>
@@ -226,7 +215,7 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
                         <h2>Shortcodes</h2>
                     </div>
                     <div class="inside">
-                        <p>Verwenden Sie diese Shortcodes in Ihren Seiten:</p>
+                        <p>Verwende diese Shortcodes um die Tourdaten auf der Webseite anzuzeigen:</p>
                         <p><code>[tourdaten]</code><br><small>Zeigt die öffentlichen Tourdaten an</small></p>
                         <p><strong>REST API Endpoint:</strong><br>
                         <code><?php echo rest_url('tour/v1/tour'); ?></code></p>
