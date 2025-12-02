@@ -129,11 +129,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) 
     ), ARRAY_A);
 }
 
+// Get active season first
+$active_season = $wpdb->get_row("SELECT * FROM " . TOUR_SEASONS . " WHERE active = 1 LIMIT 1", ARRAY_A);
+
 // Get all seasons for dropdown
 $seasons = $wpdb->get_results("SELECT * FROM " . TOUR_SEASONS . " ORDER BY start_date DESC", ARRAY_A);
 
-// Get filter season
-$filter_season = isset($_GET['filter_season']) ? intval($_GET['filter_season']) : 0;
+// Get filter season - default to active season if not set
+$filter_season = isset($_GET['filter_season']) ? intval($_GET['filter_season']) : ($active_season ? $active_season['id'] : 0);
 
 // Get categories with season info and event count
 $query = "SELECT c.*, s.name as season_name,

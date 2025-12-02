@@ -154,6 +154,9 @@ if (isset($_POST['tour_event_action'])) {
     }
 }
 
+// Get active season first
+$active_season = $wpdb->get_row("SELECT * FROM " . TOUR_SEASONS . " WHERE active = 1 LIMIT 1", ARRAY_A);
+
 // Get data for dropdowns
 $seasons = $wpdb->get_results("SELECT * FROM " . TOUR_SEASONS . " ORDER BY start_date DESC", ARRAY_A);
 $categories = $wpdb->get_results("SELECT c.*, s.name as season_name FROM " . TOUR_CATEGORIES . " c LEFT JOIN " . TOUR_SEASONS . " s ON c.season_id = s.id ORDER BY s.start_date DESC, c.sort ASC", ARRAY_A);
@@ -176,7 +179,8 @@ $form_mode = (isset($_GET['action']) && in_array($_GET['action'], ['add', 'edit'
 
 // Build filters for list view
 $where_clauses = array();
-$filter_season = isset($_GET['filter_season']) ? intval($_GET['filter_season']) : 0;
+// Default to active season if not set
+$filter_season = isset($_GET['filter_season']) ? intval($_GET['filter_season']) : ($active_season ? $active_season['id'] : 0);
 $filter_category = isset($_GET['filter_category']) ? intval($_GET['filter_category']) : 0;
 $filter_status = isset($_GET['filter_status']) ? sanitize_text_field($_GET['filter_status']) : '';
 $filter_search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
@@ -214,7 +218,7 @@ if (!$form_mode) {
                      LEFT JOIN " . TOUR_TRANSPORTS . " t ON e.transport_id = t.id
                      LEFT JOIN " . TOUR_SEASONS . " s ON c.season_id = s.id
                      $where_sql
-                     ORDER BY e.date DESC, e.sort ASC
+                     ORDER BY e.date ASC, e.sort ASC
                      LIMIT 100";
 
     $events = $wpdb->get_results($events_query, ARRAY_A);

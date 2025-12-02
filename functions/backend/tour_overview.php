@@ -1,26 +1,84 @@
 <?php
 global $wpdb;
 
-// Get statistics
+// Get active season first
 $active_season = $wpdb->get_row("SELECT * FROM " . TOUR_SEASONS . " WHERE active = 1 LIMIT 1", ARRAY_A);
-$total_seasons = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_SEASONS);
-$total_categories = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_CATEGORIES);
-$total_transports = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_TRANSPORTS);
-$total_events = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_EVENTS);
-$fix_events = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_EVENTS . " WHERE fix = 1");
-$public_events = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_EVENTS . " WHERE public = 1");
-$upcoming_events = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_EVENTS . " WHERE date >= CURDATE() AND fix = 1");
 
-// Get recent events
-$recent_events = $wpdb->get_results(
-    "SELECT e.*, c.title as category_title
+// Get filter parameter - default to active season if not set
+$filter_season = isset($_GET['filter_season']) ? intval($_GET['filter_season']) : ($active_season ? $active_season['id'] : 0);
+
+// Get all seasons for dropdown
+$all_seasons = $wpdb->get_results("SELECT * FROM " . TOUR_SEASONS . " ORDER BY start_date DESC", ARRAY_A);
+
+// Determine which season to display
+if ($filter_season > 0) {
+    $display_season = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . TOUR_SEASONS . " WHERE id = %d", $filter_season), ARRAY_A);
+} else {
+    $display_season = null; // Show all
+}
+
+// Build WHERE clause for season filter
+$season_where = "";
+if ($filter_season > 0) {
+    $season_where = $wpdb->prepare("AND c.season_id = %d", $filter_season);
+}
+
+// Get statistics (filtered by season if selected)
+$total_seasons = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_SEASONS);
+$total_transports = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_TRANSPORTS);
+
+if ($filter_season > 0) {
+    // Season-specific statistics
+    $total_categories = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM " . TOUR_CATEGORIES . " WHERE season_id = %d",
+        $filter_season
+    ));
+
+    $total_events = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
+         LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
+         WHERE c.season_id = %d",
+        $filter_season
+    ));
+
+    $fix_events = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
+         LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
+         WHERE e.fix = 1 AND c.season_id = %d",
+        $filter_season
+    ));
+
+    $public_events = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
+         LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
+         WHERE e.public = 1 AND c.season_id = %d",
+        $filter_season
+    ));
+
+    $upcoming_events = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
+         LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
+         WHERE e.date >= CURDATE() AND e.fix = 1 AND c.season_id = %d",
+        $filter_season
+    ));
+} else {
+    // All seasons statistics
+    $total_categories = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_CATEGORIES);
+    $total_events = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_EVENTS);
+    $fix_events = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_EVENTS . " WHERE fix = 1");
+    $public_events = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_EVENTS . " WHERE public = 1");
+    $upcoming_events = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_EVENTS . " WHERE date >= CURDATE() AND fix = 1");
+}
+
+// Get recent events (filtered by season)
+$recent_events_query = "SELECT e.*, c.title as category_title
      FROM " . TOUR_EVENTS . " e
      LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
-     WHERE e.date >= CURDATE() AND e.fix = 1
+     WHERE e.date >= CURDATE() AND e.fix = 1 " . $season_where . "
      ORDER BY e.date ASC
-     LIMIT 5",
-    ARRAY_A
-);
+     LIMIT 5";
+
+$recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
 ?>
 
 <div class="wrap">
@@ -34,10 +92,16 @@ $recent_events = $wpdb->get_results(
             <div class="postbox" style="padding: 15px;">
                 <h3 style="margin: 0 0 10px 0;">
                     <span class="dashicons dashicons-calendar-alt" style="color: #2271b1;"></span>
-                    Aktive Saison
+                    <?php echo $filter_season > 0 ? 'Gefilterte Saison' : 'Aktive Saison'; ?>
                 </h3>
                 <p style="font-size: 24px; margin: 0; font-weight: bold;">
-                    <?php echo $active_season ? esc_html($active_season['name']) : 'Keine'; ?>
+                    <?php
+                    if ($filter_season > 0) {
+                        echo $display_season ? esc_html($display_season['name']) : 'Nicht gefunden';
+                    } else {
+                        echo $active_season ? esc_html($active_season['name']) : 'Keine';
+                    }
+                    ?>
                 </p>
             </div>
 
@@ -130,9 +194,26 @@ $recent_events = $wpdb->get_results(
 
                 <div class="postbox">
                     <div class="postbox-header">
-                        <h2>Statistiken</h2>
+                        <h2>Statistiken & Filter</h2>
                     </div>
                     <div class="inside">
+                        <!-- Season Filter -->
+                        <form method="get" action="" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #dcdcde;">
+                            <input type="hidden" name="page" value="trb_tour">
+                            <p style="margin: 0 0 8px 0;">
+                                <label for="filter_season" style="display: block; margin-bottom: 5px;"><strong>Saison:</strong></label>
+                                <select name="filter_season" id="filter_season" onchange="this.form.submit()" style="width: 100%;">
+                                    <option value="0" <?php selected($filter_season, 0); ?>>Alle Saisons</option>
+                                    <?php foreach ($all_seasons as $season): ?>
+                                        <option value="<?php echo esc_attr($season['id']); ?>" <?php selected($filter_season, $season['id']); ?>>
+                                            <?php echo esc_html($season['name']); ?><?php echo $season['active'] ? ' (Aktiv)' : ''; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </p>
+                            <noscript><input type="submit" class="button button-small" value="Filtern" style="width: 100%;"></noscript>
+                        </form>
+
                         <p><strong>Saisons:</strong> <?php echo $total_seasons; ?></p>
                         <p><strong>Kategorien:</strong> <?php echo $total_categories; ?></p>
                         <p><strong>Transporte:</strong> <?php echo $total_transports; ?></p>

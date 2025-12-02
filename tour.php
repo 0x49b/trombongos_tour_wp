@@ -29,6 +29,13 @@ define('TOUR_EVENTS', $wpdb->prefix . 'tour_events');
 
 function tour_scripts_backend()
 {
+    // Enqueue admin styles
+    wp_enqueue_style(
+        'tour-admin-styles',
+        plugins_url('assets/css/admin.css', __FILE__),
+        array(),
+        '1.0.0'
+    );
 
     // Tour Script
     //wp_register_script( 'tour-script', plugins_url('/tour/functions/backend/js/backend.js'), false, '1.0', false );
@@ -37,7 +44,7 @@ function tour_scripts_backend()
     //wp_enqueue_script( 'jquery-ui-datepicker' );
 }
 
-add_action('init', 'tour_scripts_backend');
+add_action('admin_enqueue_scripts', 'tour_scripts_backend');
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Admin Seite einrichten (im Backend in der linken Spalte)
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
