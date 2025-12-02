@@ -58,37 +58,67 @@ if (isset($_POST['tour_event_action'])) {
         }
 
         if (empty($errors)) {
-            $data = array(
-                'name' => $name,
-                'category_id' => $category_id,
-                'transport_id' => $transport_id,
-                'date' => $date,
-                'day' => $day,
-                'sort' => $sort,
-                'type' => $type,
-                'organizer' => $organizer,
-                'location' => $location,
-                'play' => $play,
-                'assembly' => $assembly,
-                'loadup' => $loadup,
-                'departure' => $departure,
-                'soundcheck' => $soundcheck,
-                'dinner' => $dinner,
-                'ending' => $ending,
-                'meal' => $meal,
-                'drinks' => $drinks,
-                'trailer' => $trailer,
-                'cert' => $cert,
-                'fix' => $fix,
-                'public' => $public,
-                'info' => $info,
-            );
+            // Build data array with uuid first for add action
+            if ($action === 'add') {
+                $data = array(
+                    'uuid' => tour_generate_uuid(),
+                    'name' => $name,
+                    'category_id' => $category_id,
+                    'transport_id' => $transport_id,
+                    'date' => $date,
+                    'day' => $day,
+                    'sort' => $sort,
+                    'type' => $type,
+                    'organizer' => $organizer,
+                    'location' => $location,
+                    'play' => $play,
+                    'assembly' => $assembly,
+                    'loadup' => $loadup,
+                    'departure' => $departure,
+                    'soundcheck' => $soundcheck,
+                    'dinner' => $dinner,
+                    'ending' => $ending,
+                    'meal' => $meal,
+                    'drinks' => $drinks,
+                    'trailer' => $trailer,
+                    'cert' => $cert,
+                    'fix' => $fix,
+                    'public' => $public,
+                    'info' => $info,
+                );
 
-            $format = array('%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s');
+                $format = array('%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s');
+            } else {
+                $data = array(
+                    'name' => $name,
+                    'category_id' => $category_id,
+                    'transport_id' => $transport_id,
+                    'date' => $date,
+                    'day' => $day,
+                    'sort' => $sort,
+                    'type' => $type,
+                    'organizer' => $organizer,
+                    'location' => $location,
+                    'play' => $play,
+                    'assembly' => $assembly,
+                    'loadup' => $loadup,
+                    'departure' => $departure,
+                    'soundcheck' => $soundcheck,
+                    'dinner' => $dinner,
+                    'ending' => $ending,
+                    'meal' => $meal,
+                    'drinks' => $drinks,
+                    'trailer' => $trailer,
+                    'cert' => $cert,
+                    'fix' => $fix,
+                    'public' => $public,
+                    'info' => $info,
+                );
+
+                $format = array('%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s');
+            }
 
             if ($action === 'add') {
-                $data['uuid'] = tour_generate_uuid();
-                array_unshift($format, '%s');
 
                 $result = $wpdb->insert(TOUR_EVENTS, $data, $format);
 
@@ -281,7 +311,13 @@ if (!$form_mode) {
                                     <tr>
                                         <th><label for="event_date">Datum *</label></th>
                                         <td>
-                                            <input type="date" name="event_date" id="event_date" value="<?php echo $edit_event ? esc_attr($edit_event['date']) : ''; ?>" required onchange="updateDayFromDate()">
+                                            <input type="date"
+                                            name="event_date"
+                                            id="event_date"
+                                            <?php if ($edit_event && !empty($edit_event['date'])): ?>
+                                                value="<?php echo esc_attr($edit_event['date']); ?>"
+                                            <?php endif; ?>
+                                            required onchange="updateDayFromDate()">
                                         </td>
                                     </tr>
                                     <tr>
@@ -443,7 +479,7 @@ if (!$form_mode) {
                                     <tr>
                                         <th><label for="info">Zusätzliche Infos</label></th>
                                         <td>
-                                            <textarea name="info" id="info" rows="4" class="large-text"><?php echo $edit_event ? esc_textarea($edit_event['info']) : ''; ?></textarea>
+                                            <textarea name="info" id="info" rows="4" class="large-text"><?php echo ($edit_event && $edit_event['info']) ? esc_textarea($edit_event['info']) : ''; ?></textarea>
                                         </td>
                                     </tr>
                                 </table>
@@ -464,10 +500,10 @@ if (!$form_mode) {
             const dateInput = document.getElementById('event_date');
             const daySelect = document.getElementById('day');
             if (dateInput.value) {
-                const date = new Date(dateInput.value + 'T00:00:00');
+                const dateObj = new Date(dateInput.value + 'T00:00:00');
                 // JavaScript: 0=Sunday, 1=Monday, etc.
                 // Our system: 0=Monday, 6=Sunday
-                let dayNum = date.getDay();
+                let dayNum = dateObj.getDay();
                 dayNum = (dayNum === 0) ? 6 : dayNum - 1;
                 daySelect.value = dayNum;
             }

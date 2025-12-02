@@ -182,7 +182,7 @@ $categories = $wpdb->get_results($query, ARRAY_A);
     <div class="tour-category-container" style="display: flex; gap: 20px; margin-top: 20px;">
 
         <!-- Form Section -->
-        <div class="tour-category-form" style="flex: 0 0 400px;">
+        <div class="tour-category-form" style="flex: 0 0 500px;">
             <div class="postbox">
                 <div class="postbox-header">
                     <h2><?php echo $edit_category ? 'Kategorie bearbeiten' : 'Neue Kategorie'; ?></h2>

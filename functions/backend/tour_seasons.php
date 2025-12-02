@@ -181,7 +181,7 @@ $seasons = $wpdb->get_results("SELECT * FROM " . TOUR_SEASONS . " ORDER BY start
     <div class="tour-season-container" style="display: flex; gap: 20px; margin-top: 20px;">
 
         <!-- Form Section -->
-        <div class="tour-season-form" style="flex: 0 0 400px;">
+        <div class="tour-season-form" style="flex: 0 0 500px;">
             <div class="postbox">
                 <div class="postbox-header">
                     <h2><?php echo $edit_season ? 'Saison bearbeiten' : 'Neue Saison'; ?></h2>

@@ -100,7 +100,7 @@ $transports = $wpdb->get_results("SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY
     <div class="tour-transport-container" style="display: flex; gap: 20px; margin-top: 20px;">
 
         <!-- Form Section -->
-        <div class="tour-transport-form" style="flex: 0 0 300px;">
+        <div class="tour-transport-form" style="flex: 0 0 500px;">
             <div class="postbox">
                 <div class="postbox-header">
                     <h2><?php echo $edit_transport ? 'Transport bearbeiten' : 'Neuer Transport'; ?></h2>
