@@ -6,7 +6,6 @@
 .postbox .postbox-header h2 {
     padding: 17px 12px;
     margin: 0;
-
 }
 
 /* Ensure consistent spacing for all postbox headers */
@@ -20,10 +19,276 @@
     padding: 12px;
 }
 
-.filter-active{
+.filter-active {
     color: #ff0061;
     font-size: 0.7rem;
 }
-.stat-icon{
+
+.stat-icon {
     line-height: 0.7em;
+}
+
+/* ============================================
+   RESPONSIVE STYLES FOR MOBILE DEVICES
+   ============================================ */
+
+/* Make containers responsive */
+.tour-category-container,
+.tour-season-container,
+.tour-transport-container,
+.tour-dashboard,
+.tour-event-form {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Mobile: Stack containers vertically */
+@media screen and (max-width: 782px) {
+    .tour-category-container,
+    .tour-season-container,
+    .tour-transport-container {
+        flex-direction: column;
+    }
+
+    .tour-category-form,
+    .tour-category-list,
+    .tour-season-form,
+    .tour-season-list,
+    .tour-transport-form,
+    .tour-transport-list {
+        flex: 1 !important;
+        max-width: 100% !important;
+    }
+
+    /* Remove fixed widths on mobile */
+    .tour-category-form,
+    .tour-season-form,
+    .tour-transport-form {
+        flex: 1 !important;
+        min-width: auto !important;
+    }
+
+    /* Stack dashboard grids */
+    .tour-stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .tour-content-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Make filter forms stack */
+    .tablenav.top form,
+    .tablenav.top form[style*="flex"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .tablenav.top select,
+    .tablenav.top input[type="search"],
+    .tablenav.top input[type="submit"],
+    .tablenav.top .button {
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
+
+    /* Event form two-column layout */
+    .tour-event-form-columns {
+        flex-direction: column !important;
+    }
+
+    .tour-event-form-column {
+        flex: 1 !important;
+        max-width: 100% !important;
+    }
+
+    /* Make tables horizontally scrollable */
+    .wp-list-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+    }
+
+    .wp-list-table thead,
+    .wp-list-table tbody,
+    .wp-list-table tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .wp-list-table th,
+    .wp-list-table td {
+        min-width: 80px;
+        word-wrap: break-word;
+        white-space: normal;
+    }
+
+    /* Adjust form table layout for mobile */
+    .form-table th {
+        display: block;
+        width: 100% !important;
+        padding: 10px 0 5px 0;
+        text-align: left;
+    }
+
+    .form-table td {
+        display: block;
+        width: 100% !important;
+        padding: 0 0 15px 0;
+    }
+
+    .form-table input[type="text"],
+    .form-table input[type="date"],
+    .form-table input[type="time"],
+    .form-table input[type="number"],
+    .form-table select,
+    .form-table textarea {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .form-table .regular-text,
+    .form-table .large-text {
+        width: 100% !important;
+    }
+
+    /* Button adjustments */
+    .page-title-action {
+        display: inline-block;
+        margin-top: 10px;
+    }
+
+    /* Action buttons in list tables */
+    .wp-list-table .button-small {
+        font-size: 11px;
+        padding: 3px 8px;
+        margin: 2px;
+    }
+
+    /* Inline forms in tables */
+    .wp-list-table form[style*="inline"] {
+        display: inline-block;
+        margin: 2px 0;
+    }
+
+    /* Statistics cards on dashboard */
+    .postbox[style*="padding: 15px"] {
+        padding: 10px !important;
+    }
+
+    .postbox[style*="padding: 15px"] h3 {
+        font-size: 14px;
+    }
+
+    .postbox[style*="padding: 15px"] p[style*="font-size: 24px"] {
+        font-size: 20px !important;
+    }
+
+    /* Bulk action selectors */
+    .tablenav .alignleft.actions {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .tablenav .alignleft.actions select,
+    .tablenav .alignleft.actions button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* Notice messages */
+    .notice {
+        margin: 5px 0 15px 0 !important;
+    }
+}
+
+/* Tablet: Improve layout for medium screens */
+@media screen and (min-width: 783px) and (max-width: 1024px) {
+    .tour-category-form,
+    .tour-season-form,
+    .tour-transport-form {
+        flex: 0 0 350px !important;
+        min-width: 350px;
+    }
+
+    .tour-category-list,
+    .tour-season-list,
+    .tour-transport-list {
+        flex: 1;
+    }
+
+    /* Adjust table columns */
+    .wp-list-table th,
+    .wp-list-table td {
+        padding: 8px 10px;
+    }
+}
+
+/* Small mobile devices */
+@media screen and (max-width: 480px) {
+    .wp-heading-inline {
+        font-size: 1.3em;
+    }
+
+    .postbox-header h2 {
+        font-size: 14px !important;
+        padding: 12px 10px !important;
+    }
+
+    .button,
+    .button-primary,
+    .button-small {
+        padding: 8px 12px;
+        font-size: 13px;
+        white-space: normal;
+        height: auto;
+    }
+
+    /* Hide less important columns on very small screens */
+    .wp-list-table th:nth-child(n+5),
+    .wp-list-table td:nth-child(n+5) {
+        display: none;
+    }
+
+    /* Keep actions column visible */
+    .wp-list-table th:last-child,
+    .wp-list-table td:last-child {
+        display: table-cell;
+    }
+
+    /* Checkbox column */
+    .check-column {
+        width: 30px;
+    }
+}
+
+/* Landscape mobile */
+@media screen and (max-width: 782px) and (orientation: landscape) {
+    .wp-list-table th:nth-child(n+5),
+    .wp-list-table td:nth-child(n+5) {
+        display: table-cell;
+    }
+}
+
+/* Print styles */
+@media print {
+    .page-title-action,
+    .button,
+    .tablenav,
+    .tour-category-form,
+    .tour-season-form,
+    .tour-transport-form {
+        display: none !important;
+    }
+
+    .tour-category-list,
+    .tour-season-list,
+    .tour-transport-list {
+        flex: 1;
+        max-width: 100%;
+    }
 }
