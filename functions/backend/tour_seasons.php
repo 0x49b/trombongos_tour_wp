@@ -178,10 +178,10 @@ $seasons = $wpdb->get_results("SELECT * FROM " . TOUR_SEASONS . " ORDER BY start
     <a href="<?php echo admin_url('admin.php?page=tour_seasons'); ?>" class="page-title-action">Neu hinzufügen</a>
     <hr class="wp-header-end">
 
-    <div class="tour-season-container" style="display: flex; gap: 20px; margin-top: 20px;">
+    <div class="tour-season-container">
 
         <!-- Form Section -->
-        <div class="tour-season-form" style="flex: 0 0 500px;">
+        <div class="tour-season-form">
             <div class="postbox">
                 <div class="postbox-header">
                     <h2><?php echo $edit_season ? 'Saison bearbeiten' : 'Neue Saison'; ?></h2>
@@ -271,7 +271,7 @@ $seasons = $wpdb->get_results("SELECT * FROM " . TOUR_SEASONS . " ORDER BY start
         </div>
 
         <!-- List Section -->
-        <div class="tour-season-list" style="flex: 1;">
+        <div class="tour-season-list">
             <div class="postbox">
                 <div class="postbox-header">
                     <h2>Alle Saisons</h2>

@@ -36,11 +36,54 @@
 .tour-category-container,
 .tour-season-container,
 .tour-transport-container,
-.tour-dashboard,
 .tour-event-form {
     display: flex;
     gap: 20px;
     margin-top: 20px;
+}
+
+/* Container forms and lists - default desktop layout */
+.tour-category-form,
+.tour-season-form,
+.tour-transport-form {
+    flex: 0 0 500px;
+}
+
+.tour-category-list,
+.tour-season-list,
+.tour-transport-list {
+    flex: 1;
+}
+
+/* Dashboard - main grid layout */
+.tour-dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Dashboard grids */
+.tour-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.tour-content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+/* Event form columns */
+.tour-event-form-columns {
+    display: flex;
+    gap: 20px;
+}
+
+.tour-event-form-column {
+    flex: 1;
 }
 
 /* Mobile: Stack containers vertically */
@@ -70,6 +113,11 @@
     }
 
     /* Stack dashboard grids */
+    .tour-dashboard {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
     .tour-stats-grid {
         grid-template-columns: 1fr !important;
     }
@@ -219,6 +267,11 @@
     .tour-season-list,
     .tour-transport-list {
         flex: 1;
+    }
+
+    /* Stats grid to 2 columns on tablet */
+    .tour-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
 
     /* Adjust table columns */

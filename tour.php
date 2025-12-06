@@ -34,7 +34,7 @@ function tour_scripts_backend()
         'tour-admin-styles',
         plugins_url('assets/css/admin.css', __FILE__),
         array(),
-        '1.0.0'
+        '1.3.0'
     );
 
     // Tour Script

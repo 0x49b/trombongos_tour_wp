@@ -179,10 +179,10 @@ $categories = $wpdb->get_results($query, ARRAY_A);
         </div>
     </div>
 
-    <div class="tour-category-container" style="display: flex; gap: 20px; margin-top: 20px;">
+    <div class="tour-category-container">
 
         <!-- Form Section -->
-        <div class="tour-category-form" style="flex: 0 0 500px;">
+        <div class="tour-category-form">
             <div class="postbox">
                 <div class="postbox-header">
                     <h2><?php echo $edit_category ? 'Kategorie bearbeiten' : 'Neue Kategorie'; ?></h2>
@@ -297,7 +297,7 @@ $categories = $wpdb->get_results($query, ARRAY_A);
         </div>
 
         <!-- List Section -->
-        <div class="tour-category-list" style="flex: 1;">
+        <div class="tour-category-list">
             <div class="postbox">
                 <div class="postbox-header">
                     <h2>Alle Kategorien</h2>

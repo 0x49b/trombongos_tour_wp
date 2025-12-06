@@ -97,10 +97,10 @@ $transports = $wpdb->get_results("SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY
     <a href="<?php echo admin_url('admin.php?page=tour_transports'); ?>" class="page-title-action">Neu hinzufügen</a>
     <hr class="wp-header-end">
 
-    <div class="tour-transport-container" style="display: flex; gap: 20px; margin-top: 20px;">
+    <div class="tour-transport-container">
 
         <!-- Form Section -->
-        <div class="tour-transport-form" style="flex: 0 0 500px;">
+        <div class="tour-transport-form">
             <div class="postbox">
                 <div class="postbox-header">
                     <h2><?php echo $edit_transport ? 'Transport bearbeiten' : 'Neuer Transport'; ?></h2>
@@ -145,7 +145,7 @@ $transports = $wpdb->get_results("SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY
         </div>
 
         <!-- List Section -->
-        <div class="tour-transport-list" style="flex: 1;">
+        <div class="tour-transport-list">
             <div class="postbox">
                 <div class="postbox-header">
                     <h2>Alle Transporte</h2>

@@ -269,8 +269,8 @@ if (!$form_mode) {
                     <input type="hidden" name="event_id" value="<?php echo esc_attr($edit_event['id']); ?>">
                 <?php endif; ?>
 
-                <div class="tour-event-form-columns" style="display: flex; gap: 20px;">
-                    <div class="tour-event-form-column" style="flex: 1;">
+                <div class="tour-event-form-columns">
+                    <div class="tour-event-form-column">
                         <!-- Section 1: Basic Info -->
                         <div class="postbox">
                             <div class="postbox-header"><h2>Basis Informationen</h2></div>
@@ -367,7 +367,7 @@ if (!$form_mode) {
                         </div>
                     </div>
 
-                    <div class="tour-event-form-column" style="flex: 1;">
+                    <div class="tour-event-form-column">
                         <!-- Section 3: Timing -->
                         <div class="postbox">
                             <div class="postbox-header"><h2>Zeiten</h2></div>

@@ -84,10 +84,10 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
 <div class="wrap">
     <h1>Trombongos Tour - Übersicht</h1>
 
-    <div class="tour-dashboard" style="margin-top: 20px;">
+    <div class="tour-dashboard">
 
         <!-- Statistics Cards -->
-        <div class="tour-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        <div class="tour-stats-grid">
 
             <div class="postbox" style="padding: 15px;">
                 <h3 style="margin: 0 0 10px 0;">
@@ -140,7 +140,7 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
 
         </div>
 
-        <div class="tour-content-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        <div class="tour-content-grid">
 
             <!-- Upcoming Events -->
             <div class="postbox">
