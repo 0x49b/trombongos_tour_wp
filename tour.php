@@ -197,15 +197,13 @@ function tour_create_database_tables()
       type TINYINT DEFAULT 0 NOT NULL,
       organizer VARCHAR(255) DEFAULT NULL,
       location VARCHAR(255) DEFAULT NULL,
+      maps_url VARCHAR(500) DEFAULT NULL,
       play TIME NOT NULL,
       gathering TIME DEFAULT NULL,
       makeup TIME DEFAULT NULL,
       warehouse TIME DEFAULT NULL,
       sun TIME DEFAULT NULL,
-      meal TINYINT(1) DEFAULT 0 NOT NULL,
-      drinks TINYINT(1) DEFAULT 0 NOT NULL,
       trailer VARCHAR(255) DEFAULT NULL,
-      cert TINYINT DEFAULT NULL,
       fix TINYINT(1) DEFAULT 0 NOT NULL,
       public TINYINT(1) DEFAULT 0 NOT NULL,
       info TEXT DEFAULT NULL,
@@ -224,9 +222,70 @@ function tour_create_database_tables()
 function tour_plugin_activation()
 {
     tour_create_database_tables();
+    tour_run_migrations();
 }
 
 register_activation_hook(__FILE__, 'tour_plugin_activation');
+
+/**
+ * Run database migrations
+ */
+function tour_run_migrations()
+{
+    global $wpdb;
+
+    // Get the current plugin version
+    $current_version = get_option('tour_plugin_version', '0.0');
+    $new_version = '3.0';
+
+    // Only run migrations if version has changed
+    if (version_compare($current_version, $new_version, '<')) {
+        $migration_dir = plugin_dir_path(__FILE__) . 'db_migration/';
+        $migration_files = glob($migration_dir . '*.sql');
+
+        if ($migration_files) {
+            foreach ($migration_files as $migration_file) {
+                $migration_name = basename($migration_file, '.sql');
+
+                // Check if this migration has already been run
+                $migration_key = 'tour_migration_' . $migration_name;
+                $migration_run = get_option($migration_key, false);
+
+                if (!$migration_run) {
+                    // Read the SQL file
+                    $sql = file_get_contents($migration_file);
+
+                    if ($sql) {
+                        // Split by semicolons to execute multiple statements
+                        $statements = array_filter(
+                            array_map('trim', explode(';', $sql)),
+                            function($statement) {
+                                // Filter out empty statements and comments
+                                return !empty($statement) && strpos(trim($statement), '--') !== 0;
+                            }
+                        );
+
+                        // Execute each statement
+                        foreach ($statements as $statement) {
+                            if (!empty($statement)) {
+                                $wpdb->query($statement);
+                            }
+                        }
+
+                        // Mark migration as completed
+                        update_option($migration_key, true);
+                    }
+                }
+            }
+        }
+
+        // Update plugin version
+        update_option('tour_plugin_version', $new_version);
+    }
+}
+
+// Run migrations on plugin update
+add_action('plugins_loaded', 'tour_run_migrations');
 
 
 function tourdaten_shortcode()

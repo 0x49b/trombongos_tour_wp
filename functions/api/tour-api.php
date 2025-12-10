@@ -61,15 +61,6 @@ function tour_get_type_name($type_num) {
 }
 
 /**
- * Get cert name from number
- */
-function tour_get_cert_name($cert_num) {
-    if ($cert_num === null) return null;
-    $certs = ['2G+', '2G', '3G', '3G+'];
-    return isset($certs[$cert_num]) ? $certs[$cert_num] : null;
-}
-
-/**
  * Main API callback function
  */
 function tour_api_get_tour_data($request) {
@@ -121,15 +112,13 @@ function tour_api_get_tour_data($request) {
                 'type' => tour_get_type_name($event['type']),
                 'organizer' => $event['organizer'],
                 'location' => $event['location'],
+                'maps_url' => $event['maps_url'],
                 'play' => tour_format_time($event['play']),
                 'gathering' => tour_format_time($event['gathering']),
                 'makeup' => tour_format_time($event['makeup']),
                 'warehouse' => tour_format_time($event['warehouse']),
                 'sun' => tour_format_time($event['sun']),
-                'meal' => (bool) $event['meal'],
-                'drinks' => (bool) $event['drinks'],
                 'trailer' => $event['trailer'],
-                'cert' => tour_get_cert_name($event['cert']),
                 'transport' => $event['transport_name'],
                 'fix' => (bool) $event['fix'],
                 'public' => (bool) $event['public'],

@@ -71,9 +71,10 @@ if ($filter_season > 0) {
 }
 
 // Get recent events (filtered by season)
-$recent_events_query = "SELECT e.*, c.title as category_title
+$recent_events_query = "SELECT e.*, c.title as category_title, s.name as season_name
      FROM " . TOUR_EVENTS . " e
      LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
+     LEFT JOIN " . TOUR_SEASONS . " s ON c.season_id = s.id
      WHERE e.date >= CURDATE() AND e.fix = 1 " . $season_where . "
      ORDER BY e.date ASC
      LIMIT 5";
@@ -157,6 +158,9 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
                                     <th>Datum</th>
                                     <th>Name</th>
                                     <th>Kategorie</th>
+                                    <?php if ($filter_season == 0): ?>
+                                        <th>Saison</th>
+                                    <?php endif; ?>
                                     <th>Ort</th>
                                 </tr>
                             </thead>
@@ -166,6 +170,9 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
                                         <td><?php echo date('d.m.Y', strtotime($event['date'])); ?></td>
                                         <td><strong><?php echo esc_html($event['name']); ?></strong></td>
                                         <td><?php echo esc_html($event['category_title']); ?></td>
+                                        <?php if ($filter_season == 0): ?>
+                                            <td><?php echo esc_html($event['season_name'] ?? 'Alle Saisons'); ?></td>
+                                        <?php endif; ?>
                                         <td><?php echo esc_html($event['location']); ?></td>
                                     </tr>
                                 <?php endforeach; ?>

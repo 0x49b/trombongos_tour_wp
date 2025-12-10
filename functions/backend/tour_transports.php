@@ -13,10 +13,22 @@ if (isset($_POST['tour_transport_action'])) {
 
     if ($action === 'add' || $action === 'edit') {
         $name = sanitize_text_field($_POST['transport_name']);
+        $is_default = isset($_POST['transport_default']) ? 1 : 0;
 
         if (empty($name)) {
             echo '<div class="notice notice-error"><p>Name ist erforderlich.</p></div>';
         } else {
+            // If this transport is being set as default, unset any existing default
+            if ($is_default) {
+                $wpdb->update(
+                    TOUR_TRANSPORTS,
+                    array('default' => 0),
+                    array('default' => 1),
+                    array('%d'),
+                    array('%d')
+                );
+            }
+
             if ($action === 'add') {
                 $uuid = tour_generate_uuid();
                 $result = $wpdb->insert(
@@ -24,8 +36,9 @@ if (isset($_POST['tour_transport_action'])) {
                     array(
                         'uuid' => $uuid,
                         'name' => $name,
+                        'default' => $is_default,
                     ),
-                    array('%s', '%s')
+                    array('%s', '%s', '%d')
                 );
 
                 if ($result) {
@@ -37,9 +50,12 @@ if (isset($_POST['tour_transport_action'])) {
                 $id = intval($_POST['transport_id']);
                 $result = $wpdb->update(
                     TOUR_TRANSPORTS,
-                    array('name' => $name),
+                    array(
+                        'name' => $name,
+                        'default' => $is_default
+                    ),
                     array('id' => $id),
-                    array('%s'),
+                    array('%s', '%d'),
                     array('%d')
                 );
 
@@ -127,6 +143,22 @@ $transports = $wpdb->get_results("SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY
                                            required>
                                 </td>
                             </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label for="transport_default">Standard</label>
+                                </th>
+                                <td>
+                                    <label>
+                                        <input type="checkbox"
+                                               name="transport_default"
+                                               id="transport_default"
+                                               value="1"
+                                               <?php echo ($edit_transport && $edit_transport['default']) ? 'checked' : ''; ?>>
+                                        Als Standard-Transport festlegen
+                                    </label>
+                                    <p class="description">Wird automatisch bei neuen Auftritten vorausgewählt</p>
+                                </td>
+                            </tr>
                         </table>
 
                         <p class="submit">
@@ -158,6 +190,7 @@ $transports = $wpdb->get_results("SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY
                             <thead>
                                 <tr>
                                     <th>Name</th>
+                                    <th>Standard</th>
                                     <th>Erstellt</th>
                                     <th>Aktionen</th>
                                 </tr>
@@ -166,6 +199,13 @@ $transports = $wpdb->get_results("SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY
                                 <?php foreach ($transports as $transport): ?>
                                     <tr>
                                         <td><strong><?php echo esc_html($transport['name']); ?></strong></td>
+                                        <td>
+                                            <?php if ($transport['default']): ?>
+                                                <span class="dashicons dashicons-yes" style="color: #00a32a;"></span>
+                                            <?php else: ?>
+                                                <span class="dashicons dashicons-no" style="color: #d63638;"></span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td><?php echo esc_html(date('d.m.Y H:i', strtotime($transport['created_at']))); ?></td>
                                         <td>
                                             <a href="<?php echo admin_url('admin.php?page=tour_transports&action=edit&id=' . $transport['id']); ?>"
