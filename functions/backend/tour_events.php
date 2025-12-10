@@ -185,6 +185,7 @@ $active_season = $wpdb->get_row("SELECT * FROM " . TOUR_SEASONS . " WHERE active
 $seasons = $wpdb->get_results("SELECT * FROM " . TOUR_SEASONS . " ORDER BY start_date DESC", ARRAY_A);
 $categories = $wpdb->get_results("SELECT c.*, s.name as season_name FROM " . TOUR_CATEGORIES . " c LEFT JOIN " . TOUR_SEASONS . " s ON c.season_id = s.id ORDER BY s.start_date DESC, c.sort ASC", ARRAY_A);
 $transports = $wpdb->get_results("SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY name ASC", ARRAY_A);
+$default_transport = $wpdb->get_row("SELECT * FROM " . TOUR_TRANSPORTS . " WHERE `default` = 1 LIMIT 1", ARRAY_A);
 
 // Day names
 $days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
@@ -210,7 +211,7 @@ $filter_status = isset($_GET['filter_status']) ? sanitize_text_field($_GET['filt
 $filter_search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
 
 if ($filter_season > 0) {
-    $where_clauses[] = "c.season_id = $filter_season";
+    $where_clauses[] = "(c.season_id = $filter_season OR c.season_id IS NULL)";
 }
 
 if ($filter_category > 0) {
@@ -408,8 +409,16 @@ if (!$form_mode) {
                                             <select name="transport_id" id="transport_id">
                                                 <option value="">Keine Auswahl</option>
                                                 <?php foreach ($transports as $transport): ?>
-                                                    <option value="<?php echo esc_attr($transport['id']); ?>" <?php if ($edit_event) selected($edit_event['transport_id'], $transport['id']); ?>>
+                                                    <option value="<?php echo esc_attr($transport['id']); ?>"
+                                                        <?php
+                                                        if ($edit_event) {
+                                                            selected($edit_event['transport_id'], $transport['id']);
+                                                        } elseif (!$edit_event && $default_transport && $transport['id'] == $default_transport['id']) {
+                                                            echo 'selected';
+                                                        }
+                                                        ?>>
                                                         <?php echo esc_html($transport['name']); ?>
+                                                        <?php if ($transport['default']): ?> (Standard)<?php endif; ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>

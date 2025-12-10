@@ -20,7 +20,7 @@ if ($filter_season > 0) {
 // Build WHERE clause for season filter
 $season_where = "";
 if ($filter_season > 0) {
-    $season_where = $wpdb->prepare("AND c.season_id = %d", $filter_season);
+    $season_where = $wpdb->prepare("AND (c.season_id = %d OR c.season_id IS NULL)", $filter_season);
 }
 
 // Get statistics (filtered by season if selected)
@@ -30,35 +30,35 @@ $total_transports = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_TRANSPORTS);
 if ($filter_season > 0) {
     // Season-specific statistics
     $total_categories = $wpdb->get_var($wpdb->prepare(
-        "SELECT COUNT(*) FROM " . TOUR_CATEGORIES . " WHERE season_id = %d",
+        "SELECT COUNT(*) FROM " . TOUR_CATEGORIES . " WHERE (season_id = %d OR season_id IS NULL)",
         $filter_season
     ));
 
     $total_events = $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
          LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
-         WHERE c.season_id = %d",
+         WHERE (c.season_id = %d OR c.season_id IS NULL)",
         $filter_season
     ));
 
     $fix_events = $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
          LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
-         WHERE e.fix = 1 AND c.season_id = %d",
+         WHERE e.fix = 1 AND (c.season_id = %d OR c.season_id IS NULL)",
         $filter_season
     ));
 
     $public_events = $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
          LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
-         WHERE e.public = 1 AND c.season_id = %d",
+         WHERE e.public = 1 AND (c.season_id = %d OR c.season_id IS NULL)",
         $filter_season
     ));
 
     $upcoming_events = $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
          LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
-         WHERE e.date >= CURDATE() AND e.fix = 1 AND c.season_id = %d",
+         WHERE e.date >= CURDATE() AND e.fix = 1 AND (c.season_id = %d OR c.season_id IS NULL)",
         $filter_season
     ));
 } else {
@@ -71,9 +71,10 @@ if ($filter_season > 0) {
 }
 
 // Get recent events (filtered by season)
-$recent_events_query = "SELECT e.*, c.title as category_title
+$recent_events_query = "SELECT e.*, c.title as category_title, s.name as season_name
      FROM " . TOUR_EVENTS . " e
      LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
+     LEFT JOIN " . TOUR_SEASONS . " s ON c.season_id = s.id
      WHERE e.date >= CURDATE() AND e.fix = 1 " . $season_where . "
      ORDER BY e.date ASC
      LIMIT 5";
@@ -157,6 +158,9 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
                                     <th>Datum</th>
                                     <th>Name</th>
                                     <th>Kategorie</th>
+                                    <?php if ($filter_season == 0): ?>
+                                        <th>Saison</th>
+                                    <?php endif; ?>
                                     <th>Ort</th>
                                 </tr>
                             </thead>
@@ -166,6 +170,9 @@ $recent_events = $wpdb->get_results($recent_events_query, ARRAY_A);
                                         <td><?php echo date('d.m.Y', strtotime($event['date'])); ?></td>
                                         <td><strong><?php echo esc_html($event['name']); ?></strong></td>
                                         <td><?php echo esc_html($event['category_title']); ?></td>
+                                        <?php if ($filter_season == 0): ?>
+                                            <td><?php echo esc_html($event['season_name'] ?? 'Alle Saisons'); ?></td>
+                                        <?php endif; ?>
                                         <td><?php echo esc_html($event['location']); ?></td>
                                     </tr>
                                 <?php endforeach; ?>

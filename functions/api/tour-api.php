@@ -85,9 +85,9 @@ function tour_api_get_tour_data($request) {
         return new WP_Error('no_active_season', 'No active season found', array('status' => 404));
     }
 
-    // Get all categories for the active season, ordered by sort
+    // Get all categories for the active season (including categories with NULL season_id), ordered by sort
     $categories = $wpdb->get_results($wpdb->prepare(
-        "SELECT * FROM " . TOUR_CATEGORIES . " WHERE season_id = %d ORDER BY sort ASC",
+        "SELECT * FROM " . TOUR_CATEGORIES . " WHERE (season_id = %d OR season_id IS NULL) ORDER BY sort ASC",
         $active_season['id']
     ), ARRAY_A);
 

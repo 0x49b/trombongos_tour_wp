@@ -13,7 +13,7 @@ if (isset($_POST['tour_category_action'])) {
 
     if ($action === 'add' || $action === 'edit') {
         $title = sanitize_text_field($_POST['category_title']);
-        $season_id = intval($_POST['season_id']);
+        $season_id = null; // Categories are now accessible by all seasons
         $date_start = sanitize_text_field($_POST['date_start']);
         $date_end = sanitize_text_field($_POST['date_end']);
         $public = isset($_POST['public']) ? 1 : 0;
@@ -26,10 +26,6 @@ if (isset($_POST['tour_category_action'])) {
             $errors[] = 'Titel ist erforderlich.';
         }
 
-        if (empty($season_id)) {
-            $errors[] = 'Saison ist erforderlich.';
-        }
-
         if (empty($date_start)) {
             $errors[] = 'Startdatum ist erforderlich.';
         }
@@ -38,25 +34,26 @@ if (isset($_POST['tour_category_action'])) {
             $errors[] = 'Enddatum ist erforderlich.';
         }
 
-        if (!empty($date_start) && !empty($date_end) && strtotime($date_end) <= strtotime($date_start)) {
-            $errors[] = 'Enddatum muss nach dem Startdatum liegen.';
+        if (!empty($date_start) && !empty($date_end) && strtotime($date_end) < strtotime($date_start)) {
+            $errors[] = 'Enddatum darf nicht vor dem Startdatum liegen.';
         }
 
         if (empty($errors)) {
             if ($action === 'add') {
                 $uuid = tour_generate_uuid();
+
                 $result = $wpdb->insert(
                     TOUR_CATEGORIES,
                     array(
                         'uuid' => $uuid,
                         'title' => $title,
-                        'season_id' => $season_id,
                         'date_start' => $date_start,
                         'date_end' => $date_end,
                         'public' => $public,
                         'sort' => $sort,
+                        'season_id' => $season_id,
                     ),
-                    array('%s', '%s', '%d', '%s', '%s', '%d', '%d')
+                    array('%s', '%s', '%s', '%s', '%d', '%d', '%d')
                 );
 
                 if ($result) {
@@ -66,18 +63,19 @@ if (isset($_POST['tour_category_action'])) {
                 }
             } else {
                 $id = intval($_POST['category_id']);
+
                 $result = $wpdb->update(
                     TOUR_CATEGORIES,
                     array(
                         'title' => $title,
-                        'season_id' => $season_id,
                         'date_start' => $date_start,
                         'date_end' => $date_end,
                         'public' => $public,
                         'sort' => $sort,
+                        'season_id' => $season_id,
                     ),
                     array('id' => $id),
-                    array('%s', '%d', '%s', '%s', '%d', '%d'),
+                    array('%s', '%s', '%s', '%d', '%d', '%d'),
                     array('%d')
                 );
 
@@ -135,20 +133,22 @@ $active_season = $wpdb->get_row("SELECT * FROM " . TOUR_SEASONS . " WHERE active
 // Get all seasons for dropdown
 $seasons = $wpdb->get_results("SELECT * FROM " . TOUR_SEASONS . " ORDER BY start_date DESC", ARRAY_A);
 
-// Get filter season - default to active season if not set
-$filter_season = isset($_GET['filter_season']) ? intval($_GET['filter_season']) : ($active_season ? $active_season['id'] : 0);
+// Get filter season - default to all categories (0)
+$filter_season = isset($_GET['filter_season']) ? intval($_GET['filter_season']) : 0;
 
 // Get categories with season info and event count
-$query = "SELECT c.*, s.name as season_name,
+$query = "SELECT c.*,
+          COALESCE(s.name, 'Alle Saisons') as season_name,
+          s.start_date as season_start_date,
           (SELECT COUNT(*) FROM " . TOUR_EVENTS . " WHERE category_id = c.id) as event_count
           FROM " . TOUR_CATEGORIES . " c
           LEFT JOIN " . TOUR_SEASONS . " s ON c.season_id = s.id";
 
 if ($filter_season > 0) {
-    $query .= $wpdb->prepare(" WHERE c.season_id = %d", $filter_season);
+    $query .= $wpdb->prepare(" WHERE (c.season_id = %d OR c.season_id IS NULL)", $filter_season);
 }
 
-$query .= " ORDER BY s.start_date DESC, c.sort ASC";
+$query .= " ORDER BY c.sort ASC";
 
 $categories = $wpdb->get_results($query, ARRAY_A);
 
@@ -198,23 +198,6 @@ $categories = $wpdb->get_results($query, ARRAY_A);
                         <table class="form-table">
                             <tr>
                                 <th scope="row">
-                                    <label for="season_id">Saison *</label>
-                                </th>
-                                <td>
-                                    <select name="season_id" id="season_id" class="regular-text" required>
-                                        <option value="">Bitte wählen...</option>
-                                        <?php foreach ($seasons as $season): ?>
-                                            <option value="<?php echo esc_attr($season['id']); ?>"
-                                                    <?php if ($edit_category) selected($edit_category['season_id'], $season['id']); ?>>
-                                                <?php echo esc_html($season['name']); ?>
-                                                <?php echo $season['active'] ? ' (Aktiv)' : ''; ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">
                                     <label for="category_title">Titel *</label>
                                 </th>
                                 <td>
@@ -222,7 +205,7 @@ $categories = $wpdb->get_results($query, ARRAY_A);
                                            name="category_title"
                                            id="category_title"
                                            class="regular-text"
-                                           placeholder="z.B. Fastnacht 2025"
+                                           placeholder="z.B. Ulaladoga"
                                            value="<?php echo $edit_category ? esc_attr($edit_category['title']) : ''; ?>"
                                            required>
                                 </td>
