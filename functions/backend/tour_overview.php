@@ -20,7 +20,7 @@ if ($filter_season > 0) {
 // Build WHERE clause for season filter
 $season_where = "";
 if ($filter_season > 0) {
-    $season_where = $wpdb->prepare("AND (c.season_id = %d OR c.season_id IS NULL)", $filter_season);
+    $season_where = $wpdb->prepare("AND c.season_id = %d", $filter_season);
 }
 
 // Get statistics (filtered by season if selected)
@@ -30,35 +30,35 @@ $total_transports = $wpdb->get_var("SELECT COUNT(*) FROM " . TOUR_TRANSPORTS);
 if ($filter_season > 0) {
     // Season-specific statistics
     $total_categories = $wpdb->get_var($wpdb->prepare(
-        "SELECT COUNT(*) FROM " . TOUR_CATEGORIES . " WHERE (season_id = %d OR season_id IS NULL)",
+        "SELECT COUNT(*) FROM " . TOUR_CATEGORIES . " WHERE season_id = %d",
         $filter_season
     ));
 
     $total_events = $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
          LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
-         WHERE (c.season_id = %d OR c.season_id IS NULL)",
+         WHERE c.season_id = %d",
         $filter_season
     ));
 
     $fix_events = $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
          LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
-         WHERE e.fix = 1 AND (c.season_id = %d OR c.season_id IS NULL)",
+         WHERE e.fix = 1 AND c.season_id = %d",
         $filter_season
     ));
 
     $public_events = $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
          LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
-         WHERE e.public = 1 AND (c.season_id = %d OR c.season_id IS NULL)",
+         WHERE e.public = 1 AND c.season_id = %d",
         $filter_season
     ));
 
     $upcoming_events = $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM " . TOUR_EVENTS . " e
          LEFT JOIN " . TOUR_CATEGORIES . " c ON e.category_id = c.id
-         WHERE e.date >= CURDATE() AND e.fix = 1 AND (c.season_id = %d OR c.season_id IS NULL)",
+         WHERE e.date >= CURDATE() AND e.fix = 1 AND c.season_id = %d",
         $filter_season
     ));
 } else {

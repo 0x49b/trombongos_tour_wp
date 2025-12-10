@@ -23,15 +23,19 @@ if (isset($_POST['tour_event_action'])) {
         $type = intval($_POST['type']);
         $organizer = !empty($_POST['organizer']) ? sanitize_text_field($_POST['organizer']) : null;
         $location = !empty($_POST['location']) ? sanitize_text_field($_POST['location']) : null;
+
+        // Generate Google Maps search URL from location
+        $maps_url = null;
+        if (!empty($location)) {
+            $maps_url = 'https://www.google.com/maps/search/?api=1&query=' . urlencode($location);
+        }
+
         $play = sanitize_text_field($_POST['play']);
         $gathering = !empty($_POST['gathering']) ? sanitize_text_field($_POST['gathering']) : null;
         $makeup = !empty($_POST['makeup']) ? sanitize_text_field($_POST['makeup']) : null;
         $warehouse = !empty($_POST['warehouse']) ? sanitize_text_field($_POST['warehouse']) : null;
         $sun = !empty($_POST['sun']) ? sanitize_text_field($_POST['sun']) : null;
-        $meal = isset($_POST['meal']) ? 1 : 0;
-        $drinks = isset($_POST['drinks']) ? 1 : 0;
         $trailer = !empty($_POST['trailer']) ? sanitize_text_field($_POST['trailer']) : null;
-        $cert = !empty($_POST['cert']) && $_POST['cert'] !== '' ? intval($_POST['cert']) : null;
         $fix = isset($_POST['fix']) ? 1 : 0;
         $public = isset($_POST['public']) ? 1 : 0;
         $info = !empty($_POST['info']) ? sanitize_textarea_field($_POST['info']) : null;
@@ -69,21 +73,19 @@ if (isset($_POST['tour_event_action'])) {
                     'type' => $type,
                     'organizer' => $organizer,
                     'location' => $location,
+                    'maps_url' => $maps_url,
                     'play' => $play,
                     'gathering' => $gathering,
                     'makeup' => $makeup,
                     'warehouse' => $warehouse,
                     'sun' => $sun,
-                    'meal' => $meal,
-                    'drinks' => $drinks,
                     'trailer' => $trailer,
-                    'cert' => $cert,
                     'fix' => $fix,
                     'public' => $public,
                     'info' => $info,
                 );
 
-                $format = array('%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s');
+                $format = array('%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s');
             } else {
                 $data = array(
                     'name' => $name,
@@ -95,21 +97,19 @@ if (isset($_POST['tour_event_action'])) {
                     'type' => $type,
                     'organizer' => $organizer,
                     'location' => $location,
+                    'maps_url' => $maps_url,
                     'play' => $play,
                     'gathering' => $gathering,
                     'makeup' => $makeup,
                     'warehouse' => $warehouse,
                     'sun' => $sun,
-                    'meal' => $meal,
-                    'drinks' => $drinks,
                     'trailer' => $trailer,
-                    'cert' => $cert,
                     'fix' => $fix,
                     'public' => $public,
                     'info' => $info,
                 );
 
-                $format = array('%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s');
+                $format = array('%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s');
             }
 
             if ($action === 'add') {
@@ -190,7 +190,6 @@ $default_transport = $wpdb->get_row("SELECT * FROM " . TOUR_TRANSPORTS . " WHERE
 // Day names
 $days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
 $types = ['Auftritt', 'Infos', 'GV', 'Anderes'];
-$certs = ['2G+', '2G', '3G', '3G+'];
 
 // Get event to edit if edit action
 $edit_event = null;
@@ -211,7 +210,7 @@ $filter_status = isset($_GET['filter_status']) ? sanitize_text_field($_GET['filt
 $filter_search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
 
 if ($filter_season > 0) {
-    $where_clauses[] = "(c.season_id = $filter_season OR c.season_id IS NULL)";
+    $where_clauses[] = "c.season_id = $filter_season";
 }
 
 if ($filter_category > 0) {
@@ -361,7 +360,15 @@ if (!$form_mode) {
                                     </tr>
                                     <tr>
                                         <th><label for="location">Ort</label></th>
-                                        <td><input type="text" name="location" id="location" class="regular-text" value="<?php echo $edit_event ? esc_attr($edit_event['location']) : ''; ?>"></td>
+                                        <td>
+                                            <input type="text" name="location" id="location" class="regular-text" value="<?php echo $edit_event ? esc_attr($edit_event['location']) : ''; ?>">
+                                            <div id="maps-preview" style="margin-top: 8px; display: none;">
+                                                <a href="#" target="_blank" id="maps-link" class="button button-small">
+                                                    <span class="dashicons dashicons-location" style="vertical-align: middle; margin-top: 3px;"></span>
+                                                    In Google Maps öffnen
+                                                </a>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
@@ -428,26 +435,6 @@ if (!$form_mode) {
                                         <th><label for="trailer">Anhänger</label></th>
                                         <td><input type="text" name="trailer" id="trailer" class="regular-text" placeholder="Wer bringt den Anhänger?" value="<?php echo $edit_event ? esc_attr($edit_event['trailer']) : ''; ?>"></td>
                                     </tr>
-                                    <tr>
-                                        <th><label for="cert">COVID Zertifikat</label></th>
-                                        <td>
-                                            <select name="cert" id="cert">
-                                                <option value="">Keine Anforderung</option>
-                                                <?php foreach ($certs as $idx => $cert_name): ?>
-                                                    <option value="<?php echo $idx; ?>" <?php if ($edit_event && $edit_event['cert'] !== null) selected($edit_event['cert'], $idx); ?>>
-                                                        <?php echo esc_html($cert_name); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Verpflegung</th>
-                                        <td>
-                                            <label><input type="checkbox" name="meal" value="1" <?php if ($edit_event) checked($edit_event['meal'], 1); ?>> Essen vorhanden</label><br>
-                                            <label><input type="checkbox" name="drinks" value="1" <?php if ($edit_event) checked($edit_event['drinks'], 1); ?>> Getränke vorhanden</label>
-                                        </td>
-                                    </tr>
                                 </table>
                             </div>
                         </div>
@@ -503,6 +490,87 @@ if (!$form_mode) {
                 daySelect.value = dayNum;
             }
         }
+
+        function updateGatheringFromPlay() {
+            const playInput = document.getElementById('play');
+            const gatheringInput = document.getElementById('gathering');
+
+            if (playInput.value) {
+                // Parse the play time
+                const [hours, minutes] = playInput.value.split(':').map(Number);
+
+                // Calculate total minutes
+                let totalMinutes = hours * 60 + minutes;
+
+                // Subtract 15 minutes
+                totalMinutes -= 15;
+
+                // Handle negative values (e.g., 00:10 - 15 = previous day)
+                if (totalMinutes < 0) {
+                    totalMinutes += 24 * 60; // Add 24 hours
+                }
+
+                // Convert back to hours and minutes
+                let newHours = Math.floor(totalMinutes / 60);
+                let newMinutes = totalMinutes % 60;
+
+                // Round to nearest 15 minutes for cleaner times
+                const remainder = newMinutes % 15;
+                if (remainder <= 7) {
+                    // Round down
+                    newMinutes = newMinutes - remainder;
+                } else {
+                    // Round up
+                    newMinutes = newMinutes + (15 - remainder);
+                    if (newMinutes >= 60) {
+                        newMinutes = 0;
+                        newHours++;
+                        if (newHours >= 24) {
+                            newHours = 0;
+                        }
+                    }
+                }
+
+                // Format as HH:MM
+                const formattedTime = String(newHours).padStart(2, '0') + ':' + String(newMinutes).padStart(2, '0');
+                gatheringInput.value = formattedTime;
+            }
+        }
+
+        // Update maps link based on location
+        function updateMapsLink() {
+            const locationInput = document.getElementById('location');
+            const mapsPreview = document.getElementById('maps-preview');
+            const mapsLink = document.getElementById('maps-link');
+
+            if (locationInput && mapsPreview && mapsLink) {
+                const location = locationInput.value.trim();
+                if (location) {
+                    const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(location);
+                    mapsLink.href = mapsUrl;
+                    mapsPreview.style.display = 'block';
+                } else {
+                    mapsPreview.style.display = 'none';
+                }
+            }
+        }
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const playInput = document.getElementById('play');
+            if (playInput) {
+                playInput.addEventListener('change', updateGatheringFromPlay);
+                playInput.addEventListener('input', updateGatheringFromPlay);
+            }
+
+            const locationInput = document.getElementById('location');
+            if (locationInput) {
+                locationInput.addEventListener('input', updateMapsLink);
+                locationInput.addEventListener('change', updateMapsLink);
+                // Initialize on page load
+                updateMapsLink();
+            }
+        });
         </script>
 
     <?php else: ?>
