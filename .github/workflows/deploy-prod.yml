@@ -2,14 +2,14 @@ name: 🎺 Deploy Tour Plugin to PROD Website
 on:
   workflow_dispatch:
     inputs:
-        dryRun:
-            type: choice
-            options:
-              - 'true'
-              - 'false'
-            description: "Let it run dry"
-            required: true
-            default: 'true'
+      dryRun:
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        description: "Let it run dry"
+        required: true
+        default: 'true'
 #  pull_request:
 #    branches:
 #      - 'master'
@@ -18,17 +18,17 @@ jobs:
     name: 🎉 Deploy
     runs-on: ubuntu-latest
     steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v6
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v6
 
-    - name: 📂 Sync files
-      uses: webitsbr/github-to-ftp@1.0.1
-      with:
-        server: ${{ secrets.SERVER }}
-        username: ${{ secrets.USER_PROD }}
-        password: ${{ secrets.PASSWORD_PROD }}
-        dangerous-clean-slate: true
-        local-dir: ./
-        server-dir: ./wp-content/plugins/trombongos_tour_wp/
-        exclude: .git*/**
-        dry-run: ${{ github.event.inputs.dryRun }}
+      - name: 📂 Sync files
+        uses: webitsbr/github-to-ftp@1.0.1
+        with:
+          server: ${{ secrets.SERVER }}
+          username: ${{ secrets.USER_PROD }}
+          password: ${{ secrets.PASSWORD_PROD }}
+          dangerous-clean-slate: true
+          local-dir: ./
+          server-dir: ./wp-content/plugins/trombongos_tour_wp/
+          exclude: .git*/**
+          dry-run: ${{ github.event.inputs.dryRun }}

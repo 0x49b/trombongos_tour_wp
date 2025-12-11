@@ -8,9 +8,6 @@ Version: 3.0
 Author URI: https://www.thievent.org
 */
 
-/**
- * https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/
- */
 
 global $wpdb;
 
@@ -18,127 +15,103 @@ global $wpdb;
 					Datenbank Konstanten definieren
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 
-define('TOUR_SEASONS', $wpdb->prefix . 'tour_seasons');
-define('TOUR_CATEGORIES', $wpdb->prefix . 'tour_categories');
-define('TOUR_TRANSPORTS', $wpdb->prefix . 'tour_transports');
-define('TOUR_EVENTS', $wpdb->prefix . 'tour_events');
+define( 'TOUR_SEASONS', $wpdb->prefix . 'tour_seasons' );
+define( 'TOUR_CATEGORIES', $wpdb->prefix . 'tour_categories' );
+define( 'TOUR_TRANSPORTS', $wpdb->prefix . 'tour_transports' );
+define( 'TOUR_EVENTS', $wpdb->prefix . 'tour_events' );
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Plugin Scripts & Styles (Backend)
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 
-function tour_scripts_backend()
-{
-    // Enqueue admin styles
-    wp_enqueue_style(
-        'tour-admin-styles',
-        plugins_url('assets/css/admin.css', __FILE__),
-        array(),
-        '1.3.0'
-    );
-
-    // Tour Script
-    //wp_register_script( 'tour-script', plugins_url('/tour/functions/backend/js/backend.js'), false, '1.0', false );
-    //wp_enqueue_script( 'tour-script');
-
-    //wp_enqueue_script( 'jquery-ui-datepicker' );
+function tour_scripts_backend() {
+	// Enqueue admin styles
+	wp_enqueue_style(
+		'tour-admin-styles',
+		plugins_url( 'assets/css/admin.css', __FILE__ ),
+		array(),
+		'1.3.0'
+	);
 }
 
-add_action('admin_enqueue_scripts', 'tour_scripts_backend');
+add_action( 'admin_enqueue_scripts', 'tour_scripts_backend' );
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Admin Seite einrichten (im Backend in der linken Spalte)
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 
-add_action("admin_menu", "setup_theme_admin_menus");
+add_action( "admin_menu", "setup_theme_admin_menus" );
 
 
-function setup_theme_admin_menus()
-{
-    add_menu_page('Trombongos Tour', 'Trombongos Tour', 'manage_options',
-        'trb_tour', 'tour_overview', 'dashicons-calendar-alt');
+function setup_theme_admin_menus() {
+	add_menu_page( 'Trombongos Tour', 'Trombongos Tour', 'manage_options',
+		'trb_tour', 'tour_overview', 'dashicons-calendar-alt' );
 
-    add_submenu_page('trb_tour',
-        'Übersicht', 'Übersicht', 'manage_options',
-        'trb_tour', 'tour_overview');
+	add_submenu_page( 'trb_tour',
+		'Übersicht', 'Übersicht', 'manage_options',
+		'trb_tour', 'tour_overview' );
 
-    add_submenu_page('trb_tour',
-        'Auftritte', 'Auftritte', 'manage_options',
-        'tour_events', 'tour_events_page');
+	add_submenu_page( 'trb_tour',
+		'Auftritte', 'Auftritte', 'manage_options',
+		'tour_events', 'tour_events_page' );
 
-    add_submenu_page('trb_tour',
-        'Kategorien', 'Kategorien', 'manage_options',
-        'tour_categories', 'tour_categories_page');
+	add_submenu_page( 'trb_tour',
+		'Kategorien', 'Kategorien', 'manage_options',
+		'tour_categories', 'tour_categories_page' );
 
-    add_submenu_page('trb_tour',
-        'Saisons', 'Saisons', 'manage_options',
-        'tour_seasons', 'tour_seasons_page');
+	add_submenu_page( 'trb_tour',
+		'Saisons', 'Saisons', 'manage_options',
+		'tour_seasons', 'tour_seasons_page' );
 
-    add_submenu_page('trb_tour',
-        'Transport', 'Transport', 'manage_options',
-        'tour_transports', 'tour_transports_page');
+	add_submenu_page( 'trb_tour',
+		'Transport', 'Transport', 'manage_options',
+		'tour_transports', 'tour_transports_page' );
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Backend Functions inkludieren
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
-function tour_overview()
-{
-    include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_overview.php");
+function tour_overview() {
+	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_overview.php" );
 }
 
-function tour_events_page()
-{
-    include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_events.php");
+function tour_events_page() {
+	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_events.php" );
 }
 
-function tour_categories_page()
-{
-    include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_categories.php");
+function tour_categories_page() {
+	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_categories.php" );
 }
 
-function tour_seasons_page()
-{
-    include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_seasons.php");
+function tour_seasons_page() {
+	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_seasons.php" );
 }
 
-function tour_transports_page()
-{
-    include_once(plugin_dir_path(__FILE__) . "functions/backend/tour_transports.php");
+function tour_transports_page() {
+	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_transports.php" );
 }
-
-/*--------------------------------------------------------------------------------------------------------------------------------------------*\
-					Frontend Functions inkludieren
-\*--------------------------------------------------------------------------------------------------------------------------------------------*/
-function tour_tourplan_front()
-{
-    include_once(plugin_dir_path(__FILE__) . "functions/frontend/tour_tourplan_front.php");
-}
-
-add_shortcode('tourplan', 'tour_tourplan_front');
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Alle Klassen aus dem Ordner <class> inkludieren
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
-include_once(plugin_dir_path(__FILE__) . "class/class-tour-list-tables.php");
+include_once( plugin_dir_path( __FILE__ ) . "class/class-tour-list-tables.php" );
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					REST API inkludieren
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
-include_once(plugin_dir_path(__FILE__) . "functions/api/tour-api.php");
+include_once( plugin_dir_path( __FILE__ ) . "functions/api/tour-api.php" );
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Plugin Activation Hook
                     1. Datenbanktabellen anlegen
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
-function tour_create_database_tables()
-{
-    global $wpdb;
-    $charset_collate = $wpdb->get_charset_collate();
+function tour_create_database_tables() {
+	global $wpdb;
+	$charset_collate = $wpdb->get_charset_collate();
 
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-    // Create Seasons Table
-    $sql_seasons = "CREATE TABLE " . TOUR_SEASONS . " (
+	// Create Seasons Table
+	$sql_seasons = "CREATE TABLE " . TOUR_SEASONS . " (
       id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
       uuid CHAR(36) NOT NULL,
       name VARCHAR(9) NOT NULL,
@@ -151,10 +124,10 @@ function tour_create_database_tables()
       UNIQUE KEY uuid (uuid),
       KEY active (active)
     ) $charset_collate;";
-    dbDelta($sql_seasons);
+	dbDelta( $sql_seasons );
 
-    // Create Transports Table
-    $sql_transports = "CREATE TABLE " . TOUR_TRANSPORTS . " (
+	// Create Transports Table
+	$sql_transports = "CREATE TABLE " . TOUR_TRANSPORTS . " (
       id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
       uuid CHAR(36) NOT NULL,
       name VARCHAR(255) NOT NULL,
@@ -163,10 +136,10 @@ function tour_create_database_tables()
       PRIMARY KEY (id),
       UNIQUE KEY uuid (uuid)
     ) $charset_collate;";
-    dbDelta($sql_transports);
+	dbDelta( $sql_transports );
 
-    // Create Categories Table
-    $sql_categories = "CREATE TABLE " . TOUR_CATEGORIES . " (
+	// Create Categories Table
+	$sql_categories = "CREATE TABLE " . TOUR_CATEGORIES . " (
       id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
       uuid CHAR(36) NOT NULL,
       title VARCHAR(255) NOT NULL,
@@ -182,10 +155,10 @@ function tour_create_database_tables()
       KEY season_id (season_id),
       KEY sort (sort)
     ) $charset_collate;";
-    dbDelta($sql_categories);
+	dbDelta( $sql_categories );
 
-    // Create Events Table
-    $sql_events = "CREATE TABLE " . TOUR_EVENTS . " (
+	// Create Events Table
+	$sql_events = "CREATE TABLE " . TOUR_EVENTS . " (
       id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
       uuid CHAR(36) NOT NULL,
       name VARCHAR(255) NOT NULL,
@@ -216,192 +189,80 @@ function tour_create_database_tables()
       KEY date (date),
       KEY event_query (public, fix, date)
     ) $charset_collate;";
-    dbDelta($sql_events);
+	dbDelta( $sql_events );
 }
 
-function tour_plugin_activation()
-{
-    tour_create_database_tables();
-    tour_run_migrations();
+function tour_plugin_activation() {
+	tour_create_database_tables();
+	tour_run_migrations();
 }
 
-register_activation_hook(__FILE__, 'tour_plugin_activation');
+register_activation_hook( __FILE__, 'tour_plugin_activation' );
 
 /**
  * Run database migrations
  */
-function tour_run_migrations()
-{
-    global $wpdb;
+function tour_run_migrations() {
+	global $wpdb;
 
-    // Get the current plugin version
-    $current_version = get_option('tour_plugin_version', '0.0');
-    $new_version = '3.0';
+	// Get the current plugin version
+	$current_version = get_option( 'tour_plugin_version', '0.0' );
+	$new_version     = '3.0';
 
-    // Only run migrations if version has changed
-    if (version_compare($current_version, $new_version, '<')) {
-        $migration_dir = plugin_dir_path(__FILE__) . 'db_migration/';
-        $migration_files = glob($migration_dir . '*.sql');
+	// Only run migrations if version has changed
+	if ( version_compare( $current_version, $new_version, '<' ) ) {
+		$migration_dir   = plugin_dir_path( __FILE__ ) . 'db_migration/';
+		$migration_files = glob( $migration_dir . '*.sql' );
 
-        if ($migration_files) {
-            foreach ($migration_files as $migration_file) {
-                $migration_name = basename($migration_file, '.sql');
+		if ( $migration_files ) {
+			foreach ( $migration_files as $migration_file ) {
+				$migration_name = basename( $migration_file, '.sql' );
 
-                // Check if this migration has already been run
-                $migration_key = 'tour_migration_' . $migration_name;
-                $migration_run = get_option($migration_key, false);
+				// Check if this migration has already been run
+				$migration_key = 'tour_migration_' . $migration_name;
+				$migration_run = get_option( $migration_key, false );
 
-                if (!$migration_run) {
-                    // Read the SQL file
-                    $sql = file_get_contents($migration_file);
+				if ( ! $migration_run ) {
+					// Read the SQL file
+					$sql = file_get_contents( $migration_file );
 
-                    if ($sql) {
-                        // Split by semicolons to execute multiple statements
-                        $statements = array_filter(
-                            array_map('trim', explode(';', $sql)),
-                            function($statement) {
-                                // Filter out empty statements and comments
-                                return !empty($statement) && strpos(trim($statement), '--') !== 0;
-                            }
-                        );
+					if ( $sql ) {
+						// Split by semicolons to execute multiple statements
+						$statements = array_filter(
+							array_map( 'trim', explode( ';', $sql ) ),
+							function ( $statement ) {
+								// Filter out empty statements and comments
+								return ! empty( $statement ) && strpos( trim( $statement ), '--' ) !== 0;
+							}
+						);
 
-                        // Execute each statement
-                        foreach ($statements as $statement) {
-                            if (!empty($statement)) {
-                                $wpdb->query($statement);
-                            }
-                        }
+						// Execute each statement
+						foreach ( $statements as $statement ) {
+							if ( ! empty( $statement ) ) {
+								$wpdb->query( $statement );
+							}
+						}
 
-                        // Mark migration as completed
-                        update_option($migration_key, true);
-                    }
-                }
-            }
-        }
+						// Mark migration as completed
+						update_option( $migration_key, true );
+					}
+				}
+			}
+		}
 
-        // Update plugin version
-        update_option('tour_plugin_version', $new_version);
-    }
+		// Update plugin version
+		update_option( 'tour_plugin_version', $new_version );
+	}
 }
 
 // Run migrations on plugin update
-add_action('plugins_loaded', 'tour_run_migrations');
+add_action( 'plugins_loaded', 'tour_run_migrations' );
 
+/*--------------------------------------------------------------------------------------------------------------------------------------------*\
+					Shortcode Definition
+\*--------------------------------------------------------------------------------------------------------------------------------------------*/
 
-function tourdaten_shortcode()
-{
-    // Call the API function directly instead of making HTTP request
-    // This avoids permalink/REST URL issues
-    $request = new WP_REST_Request('GET', '/tour/v1/tour');
-    $response = tour_api_get_tour_data($request);
-
-    // Check if the response is an error
-    if (is_wp_error($response)) {
-        error_log('Shortcode API Error: ' . $response->get_error_message());
-        return 'Failed to retrieve data: ' . $response->get_error_message();
-    }
-
-    // Get data from REST response object
-    if (is_a($response, 'WP_REST_Response')) {
-        $res = $response->get_data();
-    } else {
-        $res = $response;
-    }
-
-    // Check if the response contains valid data
-    if (!is_array($res) || !isset($res['data'])) {
-        error_log('Invalid response format from API function');
-        return 'Invalid response format.';
-    }
-
-    $dates = $res['data'];
-    $oldtitle = NULL;
-    $olddate = NULL;
-    $oldevent = NULL;
-    $i = 0;
-
-    // To prevent multiple appearances of "1. Wochenende"
-    $weekend_shown = false;
-
-    // Start building the HTML content as a string
-    $output = "
-    <div class=\"col-md-12\">
-    <h3 class=\"wp-block-heading\">Tourdaten " . esc_html($res['season']) . "</h3>
-    <table class=\"table table-sm table-responsive\">
-        <tbody>
-        <tr>
-            <th class=\"col-3\" style=\"border-top: 1px solid black\">Datum</th>
-            <th class=\"col-8\" style=\"border-top: 1px solid black\">Anlass</th>
-            <th class=\"col-1\" style=\"border-top: 1px solid black\">Auftrittszeit</th>
-        </tr>";
-
-    // Loop through dates
-    foreach ($dates as $date) {
-        if ($date['evening_count'] > 0 && $date['public']) {
-            foreach ($date['evenings'] as $evening) {
-                if (isset($dates[$i]['title']) && $dates[$i]['title'] != $oldtitle) {
-                    $output .= "<tr class=\"bg-secondary text-light\">";
-                    $output .= "<td colspan=\"3\" style=\"background-color: #d1d1d1\" class=\"col-sm-12 col-12 bg-secondary text-light\">" . esc_html($dates[$i]['title']) . "</td>";
-                    $output .= "</tr>";
-                    $oldtitle = $dates[$i]['title'];
-                }
-
-                if ($evening["public"] == 1 && isset($evening['fix']) && $evening['fix']) {
-                    $output .= "<tr>
-                        <td class=\"col-3\">";
-                    if (isset($evening['date']) && $evening['date'] != $olddate) {
-                        $output .= esc_html($evening['date']);
-                    }
-                    $output .= "</td>
-                        <td class=\"col-8 \" style=\"padding-left: 1em;\">" . esc_html($evening['name']) . "</td>
-                        <td class=\"col-1\" style=\"padding-left: 1em;\">" . esc_html($evening['play']) . "</td>
-                    </tr>";
-
-                }
-                $olddate = $evening['date'] ?? null;
-                $oldevent = $evening['name'] ?? null;
-            }
-            $oldtitle = $dates[$i]['title'];
-        }
-        $i++;
-    }
-
-    $output .= "
-        </tbody>
-    </table>
-    </div>";
-
-    // Return the generated HTML content
-    return $output;
-}
+include_once( plugin_dir_path( __FILE__ ) . "functions/frontend/tourdaten_shortcode.php" );
 
 // Register the shortcode
-add_shortcode('tourdaten', 'tourdaten_shortcode');
-
-/**
- * Grab latest post by author
- * @param array $data Options for the function.
- * @return string|null Post title for the latest, * or null if none.
- */
-function my_awesome_func($data)
-{
-
-    $posts = get_posts(array(
-        'author' => $data['id'],
-    ));
-
-    if (empty($posts)) {
-        return null;
-    }
-
-    return $posts[0];
-}
-
-add_action('rest_api_init', function () {
-    register_rest_route('tour/v1', '/author/(?P<id>\d+)', array(
-        'methods' => 'GET',
-        'callback' => 'my_awesome_func',
-    ));
-});
-
-
+add_shortcode( 'tourdaten', 'tourdaten_shortcode' );

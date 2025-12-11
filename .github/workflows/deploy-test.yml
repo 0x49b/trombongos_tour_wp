@@ -12,16 +12,16 @@ jobs:
     name: 🎉 Deploy
     runs-on: ubuntu-latest
     steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v6
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v6
 
-    - name: 📂 Sync files
-      uses: webitsbr/github-to-ftp@1.0.1
-      with:
-        server: ${{ secrets.SERVER }}
-        username: ${{ secrets.USER_TEST }}
-        password: ${{ secrets.PASSWORD_TEST }}
-        # dangerous-clean-slate: true
-        local-dir: ./
-        server-dir: ./wp-content/plugins/trombongos_tour_wp/
-        exclude: .git*/**
+      - name: 📂 Sync files
+        uses: webitsbr/github-to-ftp@1.0.1
+        with:
+          server: ${{ secrets.SERVER }}
+          username: ${{ secrets.USER_TEST }}
+          password: ${{ secrets.PASSWORD_TEST }}
+          # dangerous-clean-slate: true
+          local-dir: ./
+          server-dir: ./wp-content/plugins/trombongos_tour_wp/
+          exclude: .git*/**

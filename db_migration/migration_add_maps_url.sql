@@ -4,7 +4,7 @@
 
 -- Add maps_url column after location
 ALTER TABLE `wp_tour_events`
-ADD COLUMN `maps_url` VARCHAR(500) DEFAULT NULL AFTER `location`;
+    ADD COLUMN `maps_url` VARCHAR(500) DEFAULT NULL AFTER `location`;
 
 -- Verification query (run this after migration to check the structure)
 -- DESCRIBE `wp_tour_events`;

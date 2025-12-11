@@ -4,9 +4,12 @@
 
 -- Drop columns
 ALTER TABLE `wp_tour_events`
-DROP COLUMN `meal`,
-DROP COLUMN `drinks`,
-DROP COLUMN `cert`;
+DROP
+COLUMN `meal`,
+DROP
+COLUMN `drinks`,
+DROP
+COLUMN `cert`;
 
 -- Verification query (run this after migration to check the structure)
 -- DESCRIBE `wp_tour_events`;
