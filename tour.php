@@ -193,15 +193,16 @@ function tour_create_database_tables() {
 }
 
 function tour_plugin_activation() {
+	add_option( 'tour_plugin_version', '3.0' );
 	tour_create_database_tables();
 	tour_run_migrations();
 }
 
 register_activation_hook( __FILE__, 'tour_plugin_activation' );
 
-/**
- * Run database migrations
- */
+/*--------------------------------------------------------------------------------------------------------------------------------------------*\
+					Run Database Migrations
+\*--------------------------------------------------------------------------------------------------------------------------------------------*/
 function tour_run_migrations() {
 	global $wpdb;
 
