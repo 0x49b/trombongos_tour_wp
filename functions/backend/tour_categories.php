@@ -202,6 +202,48 @@ if ( isset( $_POST['tour_category_action'] ) ) {
                 }
             }
         }
+    } elseif ( $action === 'bulk_delete' ) {
+	    if ( ! empty( $_POST['category_ids'] ) && is_array( $_POST['category_ids'] ) ) {
+		    $ids = array_map( 'intval', $_POST['category_ids'] );
+		    $deleted_count = 0;
+		    $not_deleted_count = 0;
+		    $not_deleted_names = [];
+
+		    foreach ( $ids as $id ) {
+			    // Check if category has events
+			    $event_count = $wpdb->get_var( $wpdb->prepare(
+				    "SELECT COUNT(*) FROM " . TOUR_EVENTS . " WHERE category_id = %d",
+				    $id
+			    ) );
+
+			    if ( $event_count == 0 ) {
+				    $result = $wpdb->delete(
+					    TOUR_CATEGORIES,
+					    array( 'id' => $id ),
+					    array( '%d' )
+				    );
+				    if ($result) {
+					    $deleted_count++;
+				    }
+			    } else {
+				    $not_deleted_count++;
+				    $category_name = $wpdb->get_var( $wpdb->prepare("SELECT title FROM " . TOUR_CATEGORIES . " WHERE id = %d", $id) );
+				    $not_deleted_names[] = $category_name . ' (' . $event_count . ' Auftritte)';
+			    }
+		    }
+
+		    if ( $deleted_count > 0 ) {
+			    echo '<div class="notice notice-success"><p>' . $deleted_count . ' leere Kategorie(n) erfolgreich gelöscht.</p></div>';
+		    }
+
+		    if ( $not_deleted_count > 0 ) {
+			    echo '<div class="notice notice-warning"><p>' . $not_deleted_count . ' Kategorie(n) konnten nicht gelöscht werden, da sie noch Auftritte enthalten: ' . implode(', ', $not_deleted_names) . '.</p></div>';
+		    }
+
+		    if ($deleted_count == 0 && $not_deleted_count == 0) {
+			    echo '<div class="notice notice-info"><p>Keine Kategorien zum Löschen ausgewählt.</p></div>';
+		    }
+	    }
     }
 }
 
@@ -408,9 +450,10 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                             <?php wp_nonce_field( 'tour_category_action' ); ?>
                             <div class="tablenav top">
                                 <div class="alignleft actions">
-                                    <select name="bulk_action" id="bulk-action-selector">
+                                    <select name="bulk_action" id="bulk-action-selector" onchange="toggleBulkCategoryControls()">
                                         <option value="">Massenaktion</option>
                                         <option value="bulk_copy">In Saison kopieren</option>
+                                        <option value="bulk_delete">Löschen</option>
                                     </select>
                                     <select name="target_season_id" id="target-season-selector">
                                         <option value="">Ziel-Saison wählen...</option>
@@ -450,7 +493,11 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                                    class="category-checkbox">
                                         </th>
                                         <td>
-                                            <strong><?php echo esc_html( $category['title'] ); ?></strong>
+                                            <strong>
+                                                <a href="<?php echo admin_url( 'admin.php?page=tour_categories&action=edit&id=' . $category['id'] ); ?>">
+                                                    <?php echo esc_html( $category['title'] ); ?>
+                                                </a>
+                                            </strong>
                                         </td>
                                         <td><?php echo esc_html( $category['season_name'] ); ?></td>
                                         <td>
@@ -472,25 +519,14 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <a href="<?php echo admin_url( 'admin.php?page=tour_categories&action=edit&id=' . $category['id'] ); ?>"
-                                               class="button button-small">Bearbeiten</a>
+                    
 
                                             <button type="button" class="button button-small"
                                                     onclick="showCopyModal(<?php echo $category['id']; ?>, '<?php echo esc_js( $category['title'] ); ?>')">
                                                 Kopieren
                                             </button>
 
-                                            <form method="post" style="display: inline;"
-                                                  onsubmit="return confirm('Sind Sie sicher, dass Sie diese Kategorie löschen möchten?<?php echo $category['event_count'] > 0 ? ' Sie enthält ' . $category['event_count'] . ' Auftritt(e)!' : ''; ?>');">
-                                                <?php wp_nonce_field( 'tour_category_action' ); ?>
-                                                <input type="hidden" name="tour_category_action"
-                                                       value="delete">
-                                                <input type="hidden" name="category_id"
-                                                       value="<?php echo esc_attr( $category['id'] ); ?>">
-                                                <input type="submit"
-                                                       class="button button-small button-link-delete"
-                                                       value="Löschen">
-                                            </form>
+
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -564,16 +600,21 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                 checkboxes.forEach(cb => cb.checked = this.checked);
                             });
 
+                            function toggleBulkCategoryControls() {
+                                const action = document.getElementById('bulk-action-selector').value;
+                                const targetSeasonSelector = document.getElementById('target-season-selector');
+                                if (action === 'bulk_copy') {
+                                    targetSeasonSelector.style.display = '';
+                                } else {
+                                    targetSeasonSelector.style.display = 'none';
+                                }
+                            }
+                            document.addEventListener('DOMContentLoaded', toggleBulkCategoryControls);
+
                             function applyBulkAction() {
                                 const action = document.getElementById('bulk-action-selector').value;
                                 if (!action) {
                                     alert('Bitte wählen Sie eine Aktion aus.');
-                                    return false;
-                                }
-
-                                const targetSeason = document.getElementById('target-season-selector').value;
-                                if (!targetSeason) {
-                                    alert('Bitte wählen Sie eine Ziel-Saison aus.');
                                     return false;
                                 }
 
@@ -583,8 +624,19 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                     return false;
                                 }
 
-                                if (!confirm('Möchten Sie ' + checked.length + ' Kategorie(n) in die ausgewählte Saison kopieren?')) {
-                                    return false;
+                                if (action === 'bulk_copy') {
+                                    const targetSeason = document.getElementById('target-season-selector').value;
+                                    if (!targetSeason) {
+                                        alert('Bitte wählen Sie eine Ziel-Saison aus.');
+                                        return false;
+                                    }
+                                    if (!confirm('Möchten Sie ' + checked.length + ' Kategorie(n) in die ausgewählte Saison kopieren?')) {
+                                        return false;
+                                    }
+                                } else if (action === 'bulk_delete') {
+                                    if (!confirm('Sind Sie sicher, dass Sie ' + checked.length + ' ausgewählte Kategorie(n) löschen möchten? Kategorien mit Auftritten werden nicht gelöscht.')) {
+                                        return false;
+                                    }
                                 }
 
                                 // Set the action

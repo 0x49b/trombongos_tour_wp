@@ -65,6 +65,10 @@ function setup_theme_admin_menus() {
 	add_submenu_page( 'trb_tour',
 		'Transport', 'Transport', 'manage_options',
 		'tour_transports', 'tour_transports_page' );
+
+	add_submenu_page( 'trb_tour',
+		'Import', 'Import', 'manage_options',
+		'tour_importer', 'tour_importer_page' );
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
@@ -88,6 +92,10 @@ function tour_seasons_page() {
 
 function tour_transports_page() {
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_transports.php" );
+}
+
+function tour_importer_page() {
+	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_importer.php" );
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\

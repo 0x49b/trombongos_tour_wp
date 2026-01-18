@@ -93,14 +93,12 @@ function tour_api_get_tour_data( $request ) {
 	$data = array();
 
 	foreach ( $categories as $category ) {
-		// Get events for this category where date >= NOW() and fix = 1
 		$events = $wpdb->get_results( $wpdb->prepare(
 			"SELECT e.*, t.name as transport_name
             FROM " . TOUR_EVENTS . " e
             LEFT JOIN " . TOUR_TRANSPORTS . " t ON e.transport_id = t.id
             WHERE e.category_id = %d
             AND e.date >= CURDATE()
-            AND e.fix = 1
             ORDER BY e.date ASC, e.sort ASC",
 			$category['id']
 		), ARRAY_A );

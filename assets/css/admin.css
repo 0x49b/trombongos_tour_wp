@@ -151,28 +151,69 @@
         max-width : 100% !important;
     }
 
-    /* Make tables horizontally scrollable */
-    .wp-list-table {
-        display                    : block;
-        overflow-x                 : auto;
-        -webkit-overflow-scrolling : touch;
-        white-space                : nowrap;
+    /* Responsive styles for tour events table */
+    .tour-events-table {
+        border  : 0;
+        display : block;
     }
 
-    .wp-list-table thead,
-    .wp-list-table tbody,
-    .wp-list-table tr {
-        display      : table;
-        width        : 100%;
-        table-layout : fixed;
+    .tour-events-table thead {
+        display : none; /* Hide table headers */
     }
 
-    .wp-list-table th,
-    .wp-list-table td {
-        min-width   : 80px;
-        word-wrap   : break-word;
-        white-space : normal;
+    .tour-events-table tr {
+        display       : block;
+        margin-bottom : 15px;
+        border        : 1px solid #c3c4c7;
+        border-radius : 4px;
+        overflow      : hidden;
     }
+
+    .tour-events-table td {
+        display               : grid;
+        grid-template-columns : 120px 1fr;
+        align-items           : center;
+        padding               : 8px 12px;
+        border-top            : 1px solid #eee;
+    }
+
+    .tour-events-table td:first-child {
+        border-top : 0;
+    }
+
+    .tour-events-table td[data-colname]::before {
+        content      : attr(data-colname);
+        font-weight  : 600;
+        color        : #50575e;
+        margin-right : 10px;
+    }
+
+    .tour-events-table td[data-colname="Name"] {
+        font-size             : 1.2em;
+        font-weight           : bold;
+        grid-template-columns : 1fr;
+    }
+
+    .tour-events-table td[data-colname="Name"]::before,
+    .tour-events-table td[data-colname="Datum"]::before {
+        display : none;
+    }
+
+    .tour-events-table td[data-colname="Datum"] {
+        background-color : #f6f7f7;
+        font-weight: bold;
+        grid-template-columns: 1fr;
+    }
+
+    
+
+
+    .tour-events-table th.check-column {
+        width   : 40px;
+        padding : 12px;
+        display : block;
+    }
+
 
     /* Adjust form table layout for mobile */
     .form-table th {
@@ -196,6 +237,7 @@
     .form-table textarea {
         max-width : 100% !important;
         width     : 100% !important;
+        box-sizing: border-box;
     }
 
     .form-table .regular-text,
@@ -251,79 +293,6 @@
     /* Notice messages */
     .notice {
         margin : 5px 0 15px 0 !important;
-    }
-}
-
-/* Tablet: Improve layout for medium screens */
-@media screen and (min-width : 783px) and (max-width : 1024px) {
-    .tour-category-form,
-    .tour-season-form,
-    .tour-transport-form {
-        flex      : 0 0 350px !important;
-        min-width : 350px;
-    }
-
-    .tour-category-list,
-    .tour-season-list,
-    .tour-transport-list {
-        flex : 1;
-    }
-
-    /* Stats grid to 2 columns on tablet */
-    .tour-stats-grid {
-        grid-template-columns : repeat(2, 1fr) !important;
-    }
-
-    /* Adjust table columns */
-    .wp-list-table th,
-    .wp-list-table td {
-        padding : 8px 10px;
-    }
-}
-
-/* Small mobile devices */
-@media screen and (max-width : 480px) {
-    .wp-heading-inline {
-        font-size : 1.3em;
-    }
-
-    .postbox-header h2 {
-        font-size : 14px !important;
-        padding   : 12px 10px !important;
-    }
-
-    .button,
-    .button-primary,
-    .button-small {
-        padding     : 8px 12px;
-        font-size   : 13px;
-        white-space : normal;
-        height      : auto;
-    }
-
-    /* Hide less important columns on very small screens */
-    .wp-list-table th:nth-child(n+5),
-    .wp-list-table td:nth-child(n+5) {
-        display : none;
-    }
-
-    /* Keep actions column visible */
-    .wp-list-table th:last-child,
-    .wp-list-table td:last-child {
-        display : table-cell;
-    }
-
-    /* Checkbox column */
-    .check-column {
-        width : 30px;
-    }
-}
-
-/* Landscape mobile */
-@media screen and (max-width : 782px) and (orientation : landscape) {
-    .wp-list-table th:nth-child(n+5),
-    .wp-list-table td:nth-child(n+5) {
-        display : table-cell;
     }
 }
 

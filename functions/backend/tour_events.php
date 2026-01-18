@@ -6,6 +6,52 @@
 
 global $wpdb;
 
+// Handle re-sort action
+if ( isset( $_GET['action'] ) && $_GET['action'] === 'resort' ) {
+	if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'tour_resort_events_nonce' ) ) {
+		wp_die( 'Nonce verification failed!' );
+	}
+
+	// Get all category IDs
+	$category_ids = $wpdb->get_col("SELECT id FROM " . TOUR_CATEGORIES);
+
+	$total_updated = 0;
+
+	foreach ($category_ids as $category_id) {
+		// Get all events for the category, sorted correctly
+		$events_to_sort = $wpdb->get_results($wpdb->prepare(
+			"SELECT id FROM " . TOUR_EVENTS . " WHERE category_id = %d ORDER BY date ASC, play ASC",
+			$category_id
+		));
+
+		$sort_number = 1;
+		foreach ($events_to_sort as $event) {
+			$wpdb->update(
+				TOUR_EVENTS,
+				['sort' => $sort_number],
+				['id' => $event->id],
+				['%d'],
+				['%d']
+			);
+			$sort_number++;
+		}
+		$total_updated += count($events_to_sort);
+	}
+
+	// Using a transient to show the notice after redirect
+	set_transient('tour_events_resort_notice', $total_updated . ' Auftritte wurden neu sortiert.', 60);
+
+	// Redirect to avoid re-triggering on refresh
+	wp_safe_redirect( admin_url( 'admin.php?page=tour_events' ) );
+	exit;
+}
+
+// Display the notice if transient is set
+if ( $notice = get_transient( 'tour_events_resort_notice' ) ) {
+	echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $notice ) . '</p></div>';
+	delete_transient( 'tour_events_resort_notice' );
+}
+
 // Handle form submissions
 if ( isset( $_POST['tour_event_action'] ) ) {
     check_admin_referer( 'tour_event_action' );
@@ -179,15 +225,6 @@ if ( isset( $_POST['tour_event_action'] ) ) {
                 echo '<div class="notice notice-error"><p>' . esc_html( $error ) . '</p></div>';
             }
         }
-    } elseif ( $action === 'delete' ) {
-        $id     = intval( $_POST['event_id'] );
-        $result = $wpdb->delete( TOUR_EVENTS, array( 'id' => $id ), array( '%d' ) );
-
-        if ( $result ) {
-            echo '<div class="notice notice-success"><p>Auftritt erfolgreich gelöscht.</p></div>';
-        } else {
-            echo '<div class="notice notice-error"><p>Fehler beim Löschen des Auftritts.</p></div>';
-        }
     } elseif ( $action === 'bulk_fix' ) {
         if ( ! empty( $_POST['event_ids'] ) && is_array( $_POST['event_ids'] ) ) {
             $ids     = array_map( 'intval', $_POST['event_ids'] );
@@ -203,19 +240,12 @@ if ( isset( $_POST['tour_event_action'] ) ) {
             echo '<div class="notice notice-success"><p>' . count( $ids ) . ' Auftritt(e) als öffentlich markiert.</p></div>';
         }
     } elseif ( $action === 'bulk_delete' ) {
-        if ( ! empty( $_POST['event_ids'] ) && is_array( $_POST['event_ids'] ) ) {
-            $ids     = array_map( 'intval', $_POST['event_ids'] );
-            $id_list = implode( ',', $ids );
-            $wpdb->query( "UPDATE " . TOUR_EVENTS . " SET public = 1 WHERE id IN ($id_list)" );
-            echo '<div class="notice notice-success"><p>' . count( $ids ) . ' Auftritt(e) als öffentlich markiert.</p></div>';
-        }
-    } elseif ( $action === 'bulk_delete' ) {
-        if ( ! empty( $_POST['event_ids'] ) && is_array( $_POST['event_ids'] ) ) {
-            $ids     = array_map( 'intval', $_POST['event_ids'] );
-            $id_list = implode( ',', $ids );
-            $wpdb->query( "DELETE FROM " . TOUR_EVENTS . " WHERE id IN ($id_list)" );
-            echo '<div class="notice notice-success"><p>' . count( $ids ) . ' Auftritt(e) gelöscht.</p></div>';
-        }
+	    if ( ! empty( $_POST['event_ids'] ) && is_array( $_POST['event_ids'] ) ) {
+		    $ids     = array_map( 'intval', $_POST['event_ids'] );
+		    $id_list = implode( ',', $ids );
+		    $wpdb->query( "DELETE FROM " . TOUR_EVENTS . " WHERE id IN ($id_list)" );
+		    echo '<div class="notice notice-success"><p>' . count( $ids ) . ' Auftritt(e) gelöscht.</p></div>';
+	    }
     }
 }
 
@@ -304,9 +334,8 @@ if ( ! $form_mode ) {
 
     <?php if ( $form_mode ): ?>
         <!-- Add/Edit Form -->
-        <div class="tour-event-form">
-            <h2><?php echo $edit_event ? 'Auftritt bearbeiten' : 'Neuer Auftritt'; ?></h2>
-
+        <h2><?php echo $edit_event ? 'Auftritt bearbeiten' : 'Neuer Auftritt'; ?></h2>
+        <div class="tour-event-form">            
             <form method="post" action="" id="event-form">
                 <?php wp_nonce_field( 'tour_event_action' ); ?>
                 <input type="hidden" name="tour_event_action"
@@ -715,6 +744,8 @@ if ( ! $form_mode ) {
 
                 <input type="submit" class="button" value="Filtern">
                 <a href="<?php echo admin_url( 'admin.php?page=tour_events' ); ?>" class="button">Zurücksetzen</a>
+	            <?php $resort_nonce = wp_create_nonce('tour_resort_events_nonce'); ?>
+                <a href="<?php echo esc_url(add_query_arg(['action' => 'resort', '_wpnonce' => $resort_nonce])); ?>" class="button">Alle neu sortieren</a>
             </form>
         </div>
 
@@ -739,67 +770,54 @@ if ( ! $form_mode ) {
                 </div>
             </div>
 
-            <table class="wp-list-table widefat fixed striped">
+            <table class="wp-list-table widefat fixed striped tour-events-table">
                 <thead>
                 <tr>
                     <td class="check-column"><input type="checkbox" id="cb-select-all"></td>
-                    <th>Datum</th>
-                    <th>Name</th>
-                    <th>Kategorie</th>
-                    <th>Ort</th>
-                    <th>Auftrittszeit</th>
-                    <th>Fix</th>
-                    <th>Öffentlich</th>
-                    <th>Aktionen</th>
+                    <th class="manage-column">Name</th>
+                    <th class="manage-column">Kategorie</th>
+                    <th class="manage-column">Ort</th>
+                    <th class="manage-column">Auftrittszeit</th>
+                    <th class="manage-column">Fix</th>
+                    <th class="manage-column">Öffentlich</th>
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ( $events as $event ): ?>
+				<?php foreach ( $events as $event ): ?>
                     <tr>
                         <th class="check-column">
                             <input type="checkbox" name="event_ids[]"
                                    value="<?php echo esc_attr( $event['id'] ); ?>"
                                    class="event-checkbox">
                         </th>
-                        <td><?php echo date( 'd.m.Y', strtotime( $event['date'] ) ); ?></td>
-                        <td><strong><?php echo esc_html( $event['name'] ); ?></strong></td>
-                        <td><?php echo esc_html( $event['category_title'] ); ?></td>
-                        <td><?php echo esc_html( $event['location'] ); ?></td>
-                        <td><?php echo esc_html( date( 'H:i', strtotime( $event['play'] ) ) ); ?></td>
-                        <td>
-                            <?php if ( $event['fix'] ): ?>
+                        <td data-colname="Name">
+                            <a href="<?php echo admin_url( 'admin.php?page=tour_events&action=edit&id=' . $event['id'] ); ?>">
+                                <strong><?php echo esc_html( $event['name'] ); ?></strong>
+                            </a>
+                        </td>
+                        <td data-colname="Kategorie"><?php echo esc_html( $event['category_title'] ); ?></td>
+                        <td data-colname="Ort"><?php echo esc_html( $event['location'] ); ?></td>
+                        <td data-colname="Auftrittszeit"><?php echo esc_html( date( 'H:i', strtotime( $event['play'] ) ) ); ?></td>
+                        <td data-colname="Fix">
+							<?php if ( $event['fix'] ): ?>
                                 <span class="dashicons dashicons-yes-alt"
                                       style="color: #00a32a;"></span>
-                            <?php else: ?>
+							<?php else: ?>
                                 <span class="dashicons dashicons-marker"
                                       style="color: #dba617;"></span>
-                            <?php endif; ?>
+							<?php endif; ?>
                         </td>
-                        <td>
-                            <?php if ( $event['public'] ): ?>
+                        <td data-colname="Öffentlich">
+							<?php if ( $event['public'] ): ?>
                                 <span class="dashicons dashicons-visibility"
                                       style="color: #00a32a;"></span>
-                            <?php else: ?>
+							<?php else: ?>
                                 <span class="dashicons dashicons-hidden"
                                       style="color: #999;"></span>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <a href="<?php echo admin_url( 'admin.php?page=tour_events&action=edit&id=' . $event['id'] ); ?>"
-                               class="button button-small">Bearbeiten</a>
-
-                            <form method="post" style="display: inline;"
-                                  onsubmit="return confirm('Auftritt wirklich löschen?');">
-                                <?php wp_nonce_field( 'tour_event_action' ); ?>
-                                <input type="hidden" name="tour_event_action" value="delete">
-                                <input type="hidden" name="event_id"
-                                       value="<?php echo esc_attr( $event['id'] ); ?>">
-                                <input type="submit" class="button button-small button-link-delete"
-                                       value="Löschen">
-                            </form>
+							<?php endif; ?>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+				<?php endforeach; ?>
                 </tbody>
             </table>
         </form>
@@ -824,7 +842,7 @@ if ( ! $form_mode ) {
                 }
 
                 if (action === 'bulk_delete') {
-                    if (!confirm('Sind Sie sicher, dass Sie ' + checked.length + ' Auftritt(e) löschen möchten?')) {
+                    if (!confirm('Sind Sie sicher, dass Sie die ausgewählten Auftritte löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.')) {
                         return false;
                     }
                 }
