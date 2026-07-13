@@ -16,7 +16,7 @@ if ( isset( $_POST['tour_transport_action'] ) ) {
         $is_default = isset( $_POST['transport_default'] ) ? 1 : 0;
 
         if ( empty( $name ) ) {
-            echo '<div class="notice notice-error"><p>Name ist erforderlich.</p></div>';
+            tour_admin_notice( 'error', 'Name ist erforderlich.' );
         } else {
             // If this transport is being set as default, unset any existing default
             if ( $is_default ) {
@@ -42,9 +42,9 @@ if ( isset( $_POST['tour_transport_action'] ) ) {
                 );
 
                 if ( $result ) {
-                    echo '<div class="notice notice-success"><p>Transport erfolgreich hinzugefügt.</p></div>';
+                    tour_admin_notice( 'success', 'Transport erfolgreich hinzugefügt.' );
                 } else {
-                    echo '<div class="notice notice-error"><p>Fehler beim Hinzufügen des Transports.</p></div>';
+                    tour_admin_notice( 'error', 'Fehler beim Hinzufügen des Transports.' );
                 }
             } else {
                 $id     = intval( $_POST['transport_id'] );
@@ -60,9 +60,9 @@ if ( isset( $_POST['tour_transport_action'] ) ) {
                 );
 
                 if ( $result !== false ) {
-                    echo '<div class="notice notice-success"><p>Transport erfolgreich aktualisiert.</p></div>';
+                    tour_admin_notice( 'success', 'Transport erfolgreich aktualisiert.' );
                 } else {
-                    echo '<div class="notice notice-error"><p>Fehler beim Aktualisieren des Transports.</p></div>';
+                    tour_admin_notice( 'error', 'Fehler beim Aktualisieren des Transports.' );
                 }
             }
         }
@@ -76,7 +76,7 @@ if ( isset( $_POST['tour_transport_action'] ) ) {
         ) );
 
         if ( $count > 0 ) {
-            echo '<div class="notice notice-error"><p>Transport kann nicht gelöscht werden, da er von ' . $count . ' Auftritt(en) verwendet wird.</p></div>';
+            tour_admin_notice( 'error', 'Transport kann nicht gelöscht werden, da er von ' . $count . ' Auftritt(en) verwendet wird.' );
         } else {
             $result = $wpdb->delete(
                     TOUR_TRANSPORTS,
@@ -85,23 +85,16 @@ if ( isset( $_POST['tour_transport_action'] ) ) {
             );
 
             if ( $result ) {
-                echo '<div class="notice notice-success"><p>Transport erfolgreich gelöscht.</p></div>';
+                tour_admin_notice( 'success', 'Transport erfolgreich gelöscht.' );
             } else {
-                echo '<div class="notice notice-error"><p>Fehler beim Löschen des Transports.</p></div>';
+                tour_admin_notice( 'error', 'Fehler beim Löschen des Transports.' );
             }
         }
     }
 }
 
 // Get transport to edit if edit action
-$edit_transport = null;
-if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['id'] ) ) {
-    $edit_id        = intval( $_GET['id'] );
-    $edit_transport = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . TOUR_TRANSPORTS . " WHERE id = %d",
-            $edit_id
-    ), ARRAY_A );
-}
+$edit_transport = tour_admin_get_edit_record( TOUR_TRANSPORTS );
 
 // Get all transports
 $transports = $wpdb->get_results( "SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY name ASC", ARRAY_A );
@@ -205,13 +198,7 @@ $transports = $wpdb->get_results( "SELECT * FROM " . TOUR_TRANSPORTS . " ORDER B
                                     <td data-colname="Name">
                                         <strong><?php echo esc_html( $transport['name'] ); ?></strong>
                                     </td>
-                                    <td data-colname="Standard">
-                                        <?php if ( $transport['default'] ): ?>
-                                            <span class="dashicons dashicons-yes tour-icon-yes"></span>
-                                        <?php else: ?>
-                                            <span class="dashicons dashicons-no tour-icon-no"></span>
-                                        <?php endif; ?>
-                                    </td>
+                                    <td data-colname="Standard"><?php tour_render_bool_icon( $transport['default'] ); ?></td>
                                     <td data-colname="Erstellt"><?php echo esc_html( date( 'd.m.Y H:i', strtotime( $transport['created_at'] ) ) ); ?></td>
                                     <td data-colname="Aktionen">
                                         <div class="tour-table-actions">

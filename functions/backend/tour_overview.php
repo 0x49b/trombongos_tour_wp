@@ -2,13 +2,13 @@
 global $wpdb;
 
 // Get active season first
-$active_season = $wpdb->get_row( "SELECT * FROM " . TOUR_SEASONS . " WHERE active = 1 LIMIT 1", ARRAY_A );
+$active_season = tour_get_active_season();
 
 // Get filter parameter - default to active season if not set
-$filter_season = isset( $_GET['filter_season'] ) ? intval( $_GET['filter_season'] ) : ( $active_season ? $active_season['id'] : 0 );
+$filter_season = tour_get_season_filter();
 
 // Get all seasons for dropdown
-$all_seasons = $wpdb->get_results( "SELECT * FROM " . TOUR_SEASONS . " ORDER BY start_date DESC", ARRAY_A );
+$all_seasons = tour_get_all_seasons();
 
 // Determine which season to display
 if ( $filter_season > 0 ) {
@@ -171,7 +171,7 @@ $recent_events = $wpdb->get_results( $recent_events_query, ARRAY_A );
                             <tbody>
                             <?php foreach ( $recent_events as $event ): ?>
                                 <tr>
-                                    <td data-colname="Datum"><?php echo date( 'd.m.Y', strtotime( $event['date'] ) ); ?></td>
+                                    <td data-colname="Datum"><?php echo esc_html( tour_format_date( $event['date'] ) ); ?></td>
                                     <td data-colname="Name"><strong><?php echo esc_html( $event['name'] ); ?></strong>
                                     </td>
                                     <td data-colname="Kategorie"><?php echo esc_html( $event['category_title'] ); ?></td>

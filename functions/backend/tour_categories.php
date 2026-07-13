@@ -61,9 +61,9 @@ if ( isset( $_POST['tour_category_action'] ) ) {
                 );
 
                 if ( $result ) {
-                    echo '<div class="notice notice-success"><p>Kategorie erfolgreich hinzugefügt.</p></div>';
+                    tour_admin_notice( 'success', 'Kategorie erfolgreich hinzugefügt.' );
                 } else {
-                    echo '<div class="notice notice-error"><p>Fehler beim Hinzufügen der Kategorie.</p></div>';
+                    tour_admin_notice( 'error', 'Fehler beim Hinzufügen der Kategorie.' );
                 }
             } else {
                 $id = intval( $_POST['category_id'] );
@@ -84,15 +84,13 @@ if ( isset( $_POST['tour_category_action'] ) ) {
                 );
 
                 if ( $result !== false ) {
-                    echo '<div class="notice notice-success"><p>Kategorie erfolgreich aktualisiert.</p></div>';
+                    tour_admin_notice( 'success', 'Kategorie erfolgreich aktualisiert.' );
                 } else {
-                    echo '<div class="notice notice-error"><p>Fehler beim Aktualisieren der Kategorie.</p></div>';
+                    tour_admin_notice( 'error', 'Fehler beim Aktualisieren der Kategorie.' );
                 }
             }
         } else {
-            foreach ( $errors as $error ) {
-                echo '<div class="notice notice-error"><p>' . esc_html( $error ) . '</p></div>';
-            }
+            tour_admin_notices( 'error', $errors );
         }
     } elseif ( $action === 'delete' ) {
         $id = intval( $_POST['category_id'] );
@@ -104,7 +102,7 @@ if ( isset( $_POST['tour_category_action'] ) ) {
         ) );
 
         if ( $count > 0 ) {
-            echo '<div class="notice notice-error"><p>Kategorie kann nicht gelöscht werden, da sie ' . $count . ' Auftritt(e) enthält.</p></div>';
+            tour_admin_notice( 'error', 'Kategorie kann nicht gelöscht werden, da sie ' . $count . ' Auftritt(e) enthält.' );
         } else {
             $result = $wpdb->delete(
                     TOUR_CATEGORIES,
@@ -113,9 +111,9 @@ if ( isset( $_POST['tour_category_action'] ) ) {
             );
 
             if ( $result ) {
-                echo '<div class="notice notice-success"><p>Kategorie erfolgreich gelöscht.</p></div>';
+                tour_admin_notice( 'success', 'Kategorie erfolgreich gelöscht.' );
             } else {
-                echo '<div class="notice notice-error"><p>Fehler beim Löschen der Kategorie.</p></div>';
+                tour_admin_notice( 'error', 'Fehler beim Löschen der Kategorie.' );
             }
         }
     } elseif ( $action === 'copy' ) {
@@ -123,7 +121,7 @@ if ( isset( $_POST['tour_category_action'] ) ) {
         $target_season_id = intval( $_POST['target_season_id'] );
 
         if ( empty( $target_season_id ) ) {
-            echo '<div class="notice notice-error"><p>Bitte wählen Sie eine Ziel-Saison aus.</p></div>';
+            tour_admin_notice( 'error', 'Bitte wählen Sie eine Ziel-Saison aus.' );
         } else {
             // Get the category to copy
             $category = $wpdb->get_row( $wpdb->prepare(
@@ -148,12 +146,12 @@ if ( isset( $_POST['tour_category_action'] ) ) {
                 );
 
                 if ( $result ) {
-                    echo '<div class="notice notice-success"><p>Kategorie erfolgreich in neue Saison kopiert.</p></div>';
+                    tour_admin_notice( 'success', 'Kategorie erfolgreich in neue Saison kopiert.' );
                 } else {
-                    echo '<div class="notice notice-error"><p>Fehler beim Kopieren der Kategorie.</p></div>';
+                    tour_admin_notice( 'error', 'Fehler beim Kopieren der Kategorie.' );
                 }
             } else {
-                echo '<div class="notice notice-error"><p>Kategorie nicht gefunden.</p></div>';
+                tour_admin_notice( 'error', 'Kategorie nicht gefunden.' );
             }
         }
     } elseif ( $action === 'bulk_copy' ) {
@@ -161,7 +159,7 @@ if ( isset( $_POST['tour_category_action'] ) ) {
             $target_season_id = intval( $_POST['target_season_id'] );
 
             if ( empty( $target_season_id ) ) {
-                echo '<div class="notice notice-error"><p>Bitte wählen Sie eine Ziel-Saison aus.</p></div>';
+                tour_admin_notice( 'error', 'Bitte wählen Sie eine Ziel-Saison aus.' );
             } else {
                 $ids          = array_map( 'intval', $_POST['category_ids'] );
                 $copied_count = 0;
@@ -196,9 +194,9 @@ if ( isset( $_POST['tour_category_action'] ) ) {
                 }
 
                 if ( $copied_count > 0 ) {
-                    echo '<div class="notice notice-success"><p>' . $copied_count . ' Kategorie(n) erfolgreich in neue Saison kopiert.</p></div>';
+                    tour_admin_notice( 'success', $copied_count . ' Kategorie(n) erfolgreich in neue Saison kopiert.' );
                 } else {
-                    echo '<div class="notice notice-error"><p>Fehler beim Kopieren der Kategorien.</p></div>';
+                    tour_admin_notice( 'error', 'Fehler beim Kopieren der Kategorien.' );
                 }
             }
         }
@@ -233,38 +231,31 @@ if ( isset( $_POST['tour_category_action'] ) ) {
 		    }
 
 		    if ( $deleted_count > 0 ) {
-			    echo '<div class="notice notice-success"><p>' . $deleted_count . ' leere Kategorie(n) erfolgreich gelöscht.</p></div>';
+			    tour_admin_notice( 'success', $deleted_count . ' leere Kategorie(n) erfolgreich gelöscht.' );
 		    }
 
 		    if ( $not_deleted_count > 0 ) {
-			    echo '<div class="notice notice-warning"><p>' . $not_deleted_count . ' Kategorie(n) konnten nicht gelöscht werden, da sie noch Auftritte enthalten: ' . implode(', ', $not_deleted_names) . '.</p></div>';
+			    tour_admin_notice( 'warning', $not_deleted_count . ' Kategorie(n) konnten nicht gelöscht werden, da sie noch Auftritte enthalten: ' . implode( ', ', $not_deleted_names ) . '.' );
 		    }
 
 		    if ($deleted_count == 0 && $not_deleted_count == 0) {
-			    echo '<div class="notice notice-info"><p>Keine Kategorien zum Löschen ausgewählt.</p></div>';
+			    tour_admin_notice( 'info', 'Keine Kategorien zum Löschen ausgewählt.' );
 		    }
 	    }
     }
 }
 
 // Get category to edit if edit action
-$edit_category = null;
-if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['id'] ) ) {
-    $edit_id       = intval( $_GET['id'] );
-    $edit_category = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . TOUR_CATEGORIES . " WHERE id = %d",
-            $edit_id
-    ), ARRAY_A );
-}
+$edit_category = tour_admin_get_edit_record( TOUR_CATEGORIES );
 
 // Get active season first
-$active_season = $wpdb->get_row( "SELECT * FROM " . TOUR_SEASONS . " WHERE active = 1 LIMIT 1", ARRAY_A );
+$active_season = tour_get_active_season();
 
 // Get all seasons for dropdown
-$seasons = $wpdb->get_results( "SELECT * FROM " . TOUR_SEASONS . " ORDER BY start_date DESC", ARRAY_A );
+$seasons = tour_get_all_seasons();
 
 // Get filter season - default to active season
-$filter_season = isset( $_GET['filter_season'] ) ? intval( $_GET['filter_season'] ) : ( $active_season ? $active_season['id'] : 0 );
+$filter_season = tour_get_season_filter();
 
 // Get categories with season info and event count
 $query = "SELECT c.*,
@@ -290,25 +281,7 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
        class="page-title-action">Neu hinzufügen</a>
     <hr class="wp-header-end">
 
-    <!-- Filter -->
-    <div class="tablenav top">
-        <div class="alignleft actions">
-            <form method="get" action="">
-                <input type="hidden" name="page" value="tour_categories">
-                <select name="filter_season" id="filter_season">
-                    <option value="0">Alle Saisons</option>
-                    <?php foreach ( $seasons as $season ): ?>
-                        <option value="<?php echo esc_attr( $season['id'] ); ?>"
-                                <?php selected( $filter_season, $season['id'] ); ?>>
-                            <?php echo esc_html( $season['name'] ); ?>
-                            <?php echo $season['active'] ? ' (Aktiv)' : ''; ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <input type="submit" class="button" value="Filtern">
-            </form>
-        </div>
-    </div>
+    <?php tour_render_season_filter_form( 'tour_categories', $filter_season, $seasons ); ?>
 
     <div class="tour-category-container">
 
@@ -349,20 +322,7 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                 </th>
                                 <td>
                                     <select name="season_id" id="season_id" required>
-                                        <option value="">Bitte wählen...</option>
-                                        <?php foreach ( $seasons as $season ): ?>
-                                            <option value="<?php echo esc_attr( $season['id'] ); ?>"
-                                                    <?php
-                                                    if ( $edit_category ) {
-                                                        selected( $edit_category['season_id'], $season['id'] );
-                                                    } elseif ( $active_season && $season['id'] == $active_season['id'] ) {
-                                                        echo 'selected';
-                                                    }
-                                                    ?>>
-                                                <?php echo esc_html( $season['name'] ); ?>
-                                                <?php echo $season['active'] ? ' (Aktiv)' : ''; ?>
-                                            </option>
-                                        <?php endforeach; ?>
+                                        <?php tour_render_season_options( $seasons, $edit_category ? $edit_category['season_id'] : ( $active_season ? $active_season['id'] : 0 ), true, 'Bitte wählen...' ); ?>
                                     </select>
                                 </td>
                             </tr>
@@ -450,23 +410,16 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                             <?php wp_nonce_field( 'tour_category_action' ); ?>
                             <div class="tablenav top">
                                 <div class="alignleft actions">
-                                    <select name="bulk_action" id="bulk-action-selector" onchange="toggleBulkCategoryControls()">
+                                    <select name="bulk_action" id="bulk-action-selector">
                                         <option value="">Massenaktion</option>
                                         <option value="bulk_copy">In Saison kopieren</option>
                                         <option value="bulk_delete">Löschen</option>
                                     </select>
                                     <select name="target_season_id" id="target-season-selector">
                                         <option value="">Ziel-Saison wählen...</option>
-                                        <?php foreach ( $seasons as $season ): ?>
-                                            <option value="<?php echo esc_attr( $season['id'] ); ?>">
-                                                <?php echo esc_html( $season['name'] ); ?>
-                                                <?php echo $season['active'] ? ' (Aktiv)' : ''; ?>
-                                            </option>
-                                        <?php endforeach; ?>
+                                        <?php tour_render_season_options( $seasons, 0, true, 'Ziel-Saison wählen...' ); ?>
                                     </select>
-                                    <button type="submit" class="button"
-                                            onclick="return applyBulkAction()">Anwenden
-                                    </button>
+                                    <button type="submit" class="button" data-tour-bulk-apply>Anwenden</button>
                                 </div>
                             </div>
 
@@ -474,7 +427,8 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                 <thead>
                                 <tr>
                                     <td class="check-column"><input type="checkbox"
-                                                                    id="cb-select-all"></td>
+                                                                    id="cb-select-all"
+                                                                    data-tour-select-all="category-checkbox"></td>
                                     <th>Titel</th>
                                     <th>Saison</th>
                                     <th>Zeitraum</th>
@@ -500,26 +454,16 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                             </strong>
                                         </td>
                                         <td data-colname="Saison"><?php echo esc_html( $category['season_name'] ); ?></td>
-                                        <td data-colname="Zeitraum">
-                                            <?php
-                                            echo date( 'd.m.Y', strtotime( $category['date_start'] ) );
-                                            echo ' - ';
-                                            echo date( 'd.m.Y', strtotime( $category['date_end'] ) );
-                                            ?>
-                                        </td>
+                                        <td data-colname="Zeitraum"><?php echo esc_html( tour_format_date_range( $category['date_start'], $category['date_end'] ) ); ?></td>
                                         <td data-colname="Auftritte"><?php echo esc_html( $category['event_count'] ); ?></td>
                                         <td data-colname="Sort"><?php echo esc_html( $category['sort'] ); ?></td>
-                                        <td data-colname="Öffentlich">
-                                            <?php if ( $category['public'] ): ?>
-                                                <span class="dashicons dashicons-yes tour-icon-yes"></span>
-                                            <?php else: ?>
-                                                <span class="dashicons dashicons-no tour-icon-no"></span>
-                                            <?php endif; ?>
-                                        </td>
+                                        <td data-colname="Öffentlich"><?php tour_render_bool_icon( $category['public'] ); ?></td>
                                         <td data-colname="Aktionen">
                                             <div class="tour-table-actions">
                                                 <button type="button" class="button button-small"
-                                                        onclick="showCopyModal(<?php echo $category['id']; ?>, '<?php echo esc_js( $category['title'] ); ?>')">
+                                                        data-tour-copy-category
+                                                        data-id="<?php echo esc_attr( $category['id'] ); ?>"
+                                                        data-name="<?php echo esc_attr( $category['title'] ); ?>">
                                                     Kopieren
                                                 </button>
                                             </div>
@@ -548,13 +492,7 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                                 <select name="target_season_id"
                                                         id="copy-target-season" required
                                                         style="width: 100%;">
-                                                    <option value="">Bitte wählen...</option>
-                                                    <?php foreach ( $seasons as $season ): ?>
-                                                        <option value="<?php echo esc_attr( $season['id'] ); ?>">
-                                                            <?php echo esc_html( $season['name'] ); ?>
-                                                            <?php echo $season['active'] ? ' (Aktiv)' : ''; ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
+                                                    <?php tour_render_season_options( $seasons, 0, true, 'Bitte wählen...' ); ?>
                                                 </select>
                                             </td>
                                         </tr>
@@ -562,89 +500,12 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                     <p>
                                         <input type="submit" class="button button-primary"
                                                value="Kopieren">
-                                        <button type="button" class="button"
-                                                onclick="hideCopyModal()">Abbrechen
-                                        </button>
+                                        <button type="button" class="button" data-tour-modal-close>Abbrechen</button>
                                     </p>
                                 </form>
                             </div>
                         </div>
 
-                        <script>
-                            function showCopyModal(categoryId, categoryName) {
-                                document.getElementById('copy-category-id').value = categoryId;
-                                document.getElementById('copy-category-name').textContent = categoryName;
-                                document.getElementById('copy-category-modal').classList.add('is-open');
-                            }
-
-                            function hideCopyModal() {
-                                document.getElementById('copy-category-modal').classList.remove('is-open');
-                            }
-
-                            // Close modal when clicking outside
-                            window.onclick = function (event) {
-                                const modal = document.getElementById('copy-category-modal');
-                                if (event.target == modal) {
-                                    hideCopyModal();
-                                }
-                            }
-
-                            // Bulk actions
-                            document.getElementById('cb-select-all').addEventListener('change', function () {
-                                const checkboxes = document.querySelectorAll('.category-checkbox');
-                                checkboxes.forEach(cb => cb.checked = this.checked);
-                            });
-
-                            function toggleBulkCategoryControls() {
-                                const action = document.getElementById('bulk-action-selector').value;
-                                const targetSeasonSelector = document.getElementById('target-season-selector');
-                                if (action === 'bulk_copy') {
-                                    targetSeasonSelector.style.display = '';
-                                } else {
-                                    targetSeasonSelector.style.display = 'none';
-                                }
-                            }
-                            document.addEventListener('DOMContentLoaded', toggleBulkCategoryControls);
-
-                            function applyBulkAction() {
-                                const action = document.getElementById('bulk-action-selector').value;
-                                if (!action) {
-                                    alert('Bitte wählen Sie eine Aktion aus.');
-                                    return false;
-                                }
-
-                                const checked = document.querySelectorAll('.category-checkbox:checked');
-                                if (checked.length === 0) {
-                                    alert('Bitte wählen Sie mindestens eine Kategorie aus.');
-                                    return false;
-                                }
-
-                                if (action === 'bulk_copy') {
-                                    const targetSeason = document.getElementById('target-season-selector').value;
-                                    if (!targetSeason) {
-                                        alert('Bitte wählen Sie eine Ziel-Saison aus.');
-                                        return false;
-                                    }
-                                    if (!confirm('Möchten Sie ' + checked.length + ' Kategorie(n) in die ausgewählte Saison kopieren?')) {
-                                        return false;
-                                    }
-                                } else if (action === 'bulk_delete') {
-                                    if (!confirm('Sind Sie sicher, dass Sie ' + checked.length + ' ausgewählte Kategorie(n) löschen möchten? Kategorien mit Auftritten werden nicht gelöscht.')) {
-                                        return false;
-                                    }
-                                }
-
-                                // Set the action
-                                const form = document.getElementById('categories-bulk-form');
-                                const actionInput = document.createElement('input');
-                                actionInput.type = 'hidden';
-                                actionInput.name = 'tour_category_action';
-                                actionInput.value = action;
-                                form.appendChild(actionInput);
-
-                                return true;
-                            }
-                        </script>
                     <?php endif; ?>
                 </div>
             </div>

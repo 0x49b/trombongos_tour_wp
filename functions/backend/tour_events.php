@@ -39,17 +39,11 @@ if ( isset( $_GET['action'] ) && $_GET['action'] === 'resort' ) {
 	}
 
 	// Using a transient to show the notice after redirect
-	set_transient('tour_events_resort_notice', $total_updated . ' Auftritte wurden neu sortiert.', 60);
+	tour_admin_set_notice( 'success', $total_updated . ' Auftritte wurden neu sortiert.' );
 
 	// Redirect to avoid re-triggering on refresh
 	wp_safe_redirect( admin_url( 'admin.php?page=tour_events' ) );
 	exit;
-}
-
-// Display the notice if transient is set
-if ( $notice = get_transient( 'tour_events_resort_notice' ) ) {
-	echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $notice ) . '</p></div>';
-	delete_transient( 'tour_events_resort_notice' );
 }
 
 // Handle form submissions
@@ -204,56 +198,56 @@ if ( isset( $_POST['tour_event_action'] ) ) {
                 $result = $wpdb->insert( TOUR_EVENTS, $data, $format );
 
                 if ( $result ) {
-                    echo '<div class="notice notice-success"><p>Auftritt erfolgreich hinzugefügt.</p></div>';
-                    // Redirect to avoid form resubmission
-                    echo '<script>window.location.href = "' . admin_url( 'admin.php?page=tour_events' ) . '";</script>';
+                    tour_admin_redirect_with_notice(
+                        admin_url( 'admin.php?page=tour_events' ),
+                        'success',
+                        'Auftritt erfolgreich hinzugefügt.'
+                    );
                 } else {
-                    echo '<div class="notice notice-error"><p>Fehler beim Hinzufügen des Auftritts.</p></div>';
+                    tour_admin_notice( 'error', 'Fehler beim Hinzufügen des Auftritts.' );
                 }
             } else {
                 $id     = intval( $_POST['event_id'] );
                 $result = $wpdb->update( TOUR_EVENTS, $data, array( 'id' => $id ), $format, array( '%d' ) );
 
                 if ( $result !== false ) {
-                    echo '<div class="notice notice-success"><p>Auftritt erfolgreich aktualisiert.</p></div>';
+                    tour_admin_notice( 'success', 'Auftritt erfolgreich aktualisiert.' );
                 } else {
-                    echo '<div class="notice notice-error"><p>Fehler beim Aktualisieren des Auftritts.</p></div>';
+                    tour_admin_notice( 'error', 'Fehler beim Aktualisieren des Auftritts.' );
                 }
             }
         } else {
-            foreach ( $errors as $error ) {
-                echo '<div class="notice notice-error"><p>' . esc_html( $error ) . '</p></div>';
-            }
+            tour_admin_notices( 'error', $errors );
         }
     } elseif ( $action === 'bulk_fix' ) {
         if ( ! empty( $_POST['event_ids'] ) && is_array( $_POST['event_ids'] ) ) {
             $ids     = array_map( 'intval', $_POST['event_ids'] );
             $id_list = implode( ',', $ids );
             $wpdb->query( "UPDATE " . TOUR_EVENTS . " SET fix = 1 WHERE id IN ($id_list)" );
-            echo '<div class="notice notice-success"><p>' . count( $ids ) . ' Auftritt(e) als bestätigt markiert.</p></div>';
+            tour_admin_notice( 'success', count( $ids ) . ' Auftritt(e) als bestätigt markiert.' );
         }
     } elseif ( $action === 'bulk_public' ) {
         if ( ! empty( $_POST['event_ids'] ) && is_array( $_POST['event_ids'] ) ) {
             $ids     = array_map( 'intval', $_POST['event_ids'] );
             $id_list = implode( ',', $ids );
             $wpdb->query( "UPDATE " . TOUR_EVENTS . " SET public = 1 WHERE id IN ($id_list)" );
-            echo '<div class="notice notice-success"><p>' . count( $ids ) . ' Auftritt(e) als öffentlich markiert.</p></div>';
+            tour_admin_notice( 'success', count( $ids ) . ' Auftritt(e) als öffentlich markiert.' );
         }
     } elseif ( $action === 'bulk_delete' ) {
 	    if ( ! empty( $_POST['event_ids'] ) && is_array( $_POST['event_ids'] ) ) {
 		    $ids     = array_map( 'intval', $_POST['event_ids'] );
 		    $id_list = implode( ',', $ids );
 		    $wpdb->query( "DELETE FROM " . TOUR_EVENTS . " WHERE id IN ($id_list)" );
-		    echo '<div class="notice notice-success"><p>' . count( $ids ) . ' Auftritt(e) gelöscht.</p></div>';
+		    tour_admin_notice( 'success', count( $ids ) . ' Auftritt(e) gelöscht.' );
 	    }
     }
 }
 
 // Get active season first
-$active_season = $wpdb->get_row( "SELECT * FROM " . TOUR_SEASONS . " WHERE active = 1 LIMIT 1", ARRAY_A );
+$active_season = tour_get_active_season();
 
 // Get data for dropdowns
-$seasons           = $wpdb->get_results( "SELECT * FROM " . TOUR_SEASONS . " ORDER BY start_date DESC", ARRAY_A );
+$seasons           = tour_get_all_seasons();
 $categories        = $wpdb->get_results( "SELECT c.*, s.name as season_name FROM " . TOUR_CATEGORIES . " c LEFT JOIN " . TOUR_SEASONS . " s ON c.season_id = s.id ORDER BY s.start_date DESC, c.sort ASC", ARRAY_A );
 $transports        = $wpdb->get_results( "SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY name ASC", ARRAY_A );
 $default_transport = $wpdb->get_row( "SELECT * FROM " . TOUR_TRANSPORTS . " WHERE `default` = 1 LIMIT 1", ARRAY_A );
@@ -263,11 +257,7 @@ $days  = [ 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag',
 $types = [ 'Auftritt', 'Infos', 'GV', 'Anderes' ];
 
 // Get event to edit if edit action
-$edit_event = null;
-if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['id'] ) ) {
-    $edit_id    = intval( $_GET['id'] );
-    $edit_event = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . TOUR_EVENTS . " WHERE id = %d", $edit_id ), ARRAY_A );
-}
+$edit_event = tour_admin_get_edit_record( TOUR_EVENTS );
 
 // Check if we're in add/edit mode
 $form_mode = ( isset( $_GET['action'] ) && in_array( $_GET['action'], [
@@ -278,7 +268,7 @@ $form_mode = ( isset( $_GET['action'] ) && in_array( $_GET['action'], [
 // Build filters for list view
 $where_clauses = array();
 // Default to active season if not set
-$filter_season   = isset( $_GET['filter_season'] ) ? intval( $_GET['filter_season'] ) : ( $active_season ? $active_season['id'] : 0 );
+$filter_season   = tour_get_season_filter();
 $filter_category = isset( $_GET['filter_category'] ) ? intval( $_GET['filter_category'] ) : 0;
 $filter_status   = isset( $_GET['filter_status'] ) ? sanitize_text_field( $_GET['filter_status'] ) : '';
 $filter_search   = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
@@ -397,7 +387,7 @@ if ( ! $form_mode ) {
                                                     <?php if ( $edit_event && ! empty( $edit_event['date'] ) ): ?>
                                                         value="<?php echo esc_attr( $edit_event['date'] ); ?>"
                                                     <?php endif; ?>
-                                                   required onchange="updateDayFromDate()">
+                                                   required>
                                         </td>
                                     </tr>
                                     <tr>
@@ -602,102 +592,6 @@ if ( ! $form_mode ) {
             </form>
         </div>
 
-        <script>
-            function updateDayFromDate() {
-                const dateInput = document.getElementById('event_date');
-                const daySelect = document.getElementById('day');
-                if (dateInput.value) {
-                    const dateObj = new Date(dateInput.value + 'T00:00:00');
-                    // JavaScript: 0=Sunday, 1=Monday, etc.
-                    // Our system: 0=Monday, 6=Sunday
-                    let dayNum = dateObj.getDay();
-                    dayNum = (dayNum === 0) ? 6 : dayNum - 1;
-                    daySelect.value = dayNum;
-                }
-            }
-
-            function updateGatheringFromPlay() {
-                const playInput = document.getElementById('play');
-                const gatheringInput = document.getElementById('gathering');
-
-                if (playInput.value) {
-                    // Parse the play time
-                    const [hours, minutes] = playInput.value.split(':').map(Number);
-
-                    // Calculate total minutes
-                    let totalMinutes = hours * 60 + minutes;
-
-                    // Subtract 15 minutes
-                    totalMinutes -= 15;
-
-                    // Handle negative values (e.g., 00:10 - 15 = previous day)
-                    if (totalMinutes < 0) {
-                        totalMinutes += 24 * 60; // Add 24 hours
-                    }
-
-                    // Convert back to hours and minutes
-                    let newHours = Math.floor(totalMinutes / 60);
-                    let newMinutes = totalMinutes % 60;
-
-                    // Round to nearest 15 minutes for cleaner times
-                    const remainder = newMinutes % 15;
-                    if (remainder <= 7) {
-                        // Round down
-                        newMinutes = newMinutes - remainder;
-                    } else {
-                        // Round up
-                        newMinutes = newMinutes + (15 - remainder);
-                        if (newMinutes >= 60) {
-                            newMinutes = 0;
-                            newHours++;
-                            if (newHours >= 24) {
-                                newHours = 0;
-                            }
-                        }
-                    }
-
-                    // Format as HH:MM
-                    const formattedTime = String(newHours).padStart(2, '0') + ':' + String(newMinutes).padStart(2, '0');
-                    gatheringInput.value = formattedTime;
-                }
-            }
-
-            // Update maps link based on location
-            function updateMapsLink() {
-                const locationInput = document.getElementById('location');
-                const mapsPreview = document.getElementById('maps-preview');
-                const mapsLink = document.getElementById('maps-link');
-
-                if (locationInput && mapsPreview && mapsLink) {
-                    const location = locationInput.value.trim();
-                    if (location) {
-                        const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(location);
-                        mapsLink.href = mapsUrl;
-                        mapsPreview.style.display = 'block';
-                    } else {
-                        mapsPreview.style.display = 'none';
-                    }
-                }
-            }
-
-            // Add event listeners
-            document.addEventListener('DOMContentLoaded', function () {
-                const playInput = document.getElementById('play');
-                if (playInput) {
-                    playInput.addEventListener('change', updateGatheringFromPlay);
-                    playInput.addEventListener('input', updateGatheringFromPlay);
-                }
-
-                const locationInput = document.getElementById('location');
-                if (locationInput) {
-                    locationInput.addEventListener('input', updateMapsLink);
-                    locationInput.addEventListener('change', updateMapsLink);
-                    // Initialize on page load
-                    updateMapsLink();
-                }
-            });
-        </script>
-
     <?php else: ?>
         <!-- List View -->
 
@@ -763,7 +657,7 @@ if ( ! $form_mode ) {
                         <option value="bulk_public">Als öffentlich markieren</option>
                         <option value="bulk_delete">Löschen</option>
                     </select>
-                    <button type="submit" class="button" onclick="return applyBulkAction()">
+                    <button type="submit" class="button" data-tour-events-bulk-apply>
                         Anwenden
                     </button>
                 </div>
@@ -772,7 +666,7 @@ if ( ! $form_mode ) {
             <table class="wp-list-table widefat fixed striped tour-responsive-table tour-events-table">
                 <thead>
                 <tr>
-                    <td class="check-column"><input type="checkbox" id="cb-select-all"></td>
+                    <td class="check-column"><input type="checkbox" id="cb-select-all" data-tour-select-all="event-checkbox"></td>
                     <th class="manage-column">Name</th>
                     <th class="manage-column">Kategorie</th>
                     <th class="manage-column">Ort</th>
@@ -820,43 +714,6 @@ if ( ! $form_mode ) {
                 </tbody>
             </table>
         </form>
-
-        <script>
-            document.getElementById('cb-select-all').addEventListener('change', function () {
-                const checkboxes = document.querySelectorAll('.event-checkbox');
-                checkboxes.forEach(cb => cb.checked = this.checked);
-            });
-
-            function applyBulkAction() {
-                const action = document.getElementById('bulk-action-selector-top').value;
-                if (!action) {
-                    alert('Bitte wählen Sie eine Aktion aus.');
-                    return false;
-                }
-
-                const checked = document.querySelectorAll('.event-checkbox:checked');
-                if (checked.length === 0) {
-                    alert('Bitte wählen Sie mindestens einen Auftritt aus.');
-                    return false;
-                }
-
-                if (action === 'bulk_delete') {
-                    if (!confirm('Sind Sie sicher, dass Sie die ausgewählten Auftritte löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.')) {
-                        return false;
-                    }
-                }
-
-                // Set the action
-                const form = document.getElementById('events-list-form');
-                const actionInput = document.createElement('input');
-                actionInput.type = 'hidden';
-                actionInput.name = 'tour_event_action';
-                actionInput.value = action;
-                form.appendChild(actionInput);
-
-                return true;
-            }
-        </script>
     <?php endif; ?>
 
     <?php endif; ?>

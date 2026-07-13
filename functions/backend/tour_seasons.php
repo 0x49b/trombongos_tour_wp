@@ -65,9 +65,9 @@ if ( isset( $_POST['tour_season_action'] ) ) {
                 );
 
                 if ( $result ) {
-                    echo '<div class="notice notice-success"><p>Saison erfolgreich hinzugefügt.</p></div>';
+                    tour_admin_notice( 'success', 'Saison erfolgreich hinzugefügt.' );
                 } else {
-                    echo '<div class="notice notice-error"><p>Fehler beim Hinzufügen der Saison.</p></div>';
+                    tour_admin_notice( 'error', 'Fehler beim Hinzufügen der Saison.' );
                 }
             } else {
                 $id     = intval( $_POST['season_id'] );
@@ -85,15 +85,13 @@ if ( isset( $_POST['tour_season_action'] ) ) {
                 );
 
                 if ( $result !== false ) {
-                    echo '<div class="notice notice-success"><p>Saison erfolgreich aktualisiert.</p></div>';
+                    tour_admin_notice( 'success', 'Saison erfolgreich aktualisiert.' );
                 } else {
-                    echo '<div class="notice notice-error"><p>Fehler beim Aktualisieren der Saison.</p></div>';
+                    tour_admin_notice( 'error', 'Fehler beim Aktualisieren der Saison.' );
                 }
             }
         } else {
-            foreach ( $errors as $error ) {
-                echo '<div class="notice notice-error"><p>' . esc_html( $error ) . '</p></div>';
-            }
+            tour_admin_notices( 'error', $errors );
         }
     } elseif ( $action === 'delete' ) {
         $id = intval( $_POST['season_id'] );
@@ -105,7 +103,7 @@ if ( isset( $_POST['tour_season_action'] ) ) {
         ) );
 
         if ( $is_active ) {
-            echo '<div class="notice notice-error"><p>Aktive Saison kann nicht gelöscht werden.</p></div>';
+            tour_admin_notice( 'error', 'Aktive Saison kann nicht gelöscht werden.' );
         } else {
             // Check if season has categories
             $count = $wpdb->get_var( $wpdb->prepare(
@@ -114,7 +112,7 @@ if ( isset( $_POST['tour_season_action'] ) ) {
             ) );
 
             if ( $count > 0 ) {
-                echo '<div class="notice notice-error"><p>Saison kann nicht gelöscht werden, da sie ' . $count . ' Kategorie(n) enthält.</p></div>';
+                tour_admin_notice( 'error', 'Saison kann nicht gelöscht werden, da sie ' . $count . ' Kategorie(n) enthält.' );
             } else {
                 $result = $wpdb->delete(
                         TOUR_SEASONS,
@@ -123,9 +121,9 @@ if ( isset( $_POST['tour_season_action'] ) ) {
                 );
 
                 if ( $result ) {
-                    echo '<div class="notice notice-success"><p>Saison erfolgreich gelöscht.</p></div>';
+                    tour_admin_notice( 'success', 'Saison erfolgreich gelöscht.' );
                 } else {
-                    echo '<div class="notice notice-error"><p>Fehler beim Löschen der Saison.</p></div>';
+                    tour_admin_notice( 'error', 'Fehler beim Löschen der Saison.' );
                 }
             }
         }
@@ -151,25 +149,18 @@ if ( isset( $_POST['tour_season_action'] ) ) {
         );
 
         if ( $result !== false ) {
-            echo '<div class="notice notice-success"><p>Saison aktiviert.</p></div>';
+            tour_admin_notice( 'success', 'Saison aktiviert.' );
         } else {
-            echo '<div class="notice notice-error"><p>Fehler beim Aktivieren der Saison.</p></div>';
+            tour_admin_notice( 'error', 'Fehler beim Aktivieren der Saison.' );
         }
     }
 }
 
 // Get season to edit if edit action
-$edit_season = null;
-if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['id'] ) ) {
-    $edit_id     = intval( $_GET['id'] );
-    $edit_season = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . TOUR_SEASONS . " WHERE id = %d",
-            $edit_id
-    ), ARRAY_A );
-}
+$edit_season = tour_admin_get_edit_record( TOUR_SEASONS );
 
 // Get all seasons
-$seasons = $wpdb->get_results( "SELECT * FROM " . TOUR_SEASONS . " ORDER BY start_date DESC", ARRAY_A );
+$seasons = tour_get_all_seasons();
 
 ?>
 
@@ -303,13 +294,7 @@ $seasons = $wpdb->get_results( "SELECT * FROM " . TOUR_SEASONS . " ORDER BY star
                                                   title="Aktive Saison"></span>
                                         <?php endif; ?>
                                     </td>
-                                    <td data-colname="Zeitraum">
-                                        <?php
-                                        echo date( 'd.m.Y', strtotime( $season['start_date'] ) );
-                                        echo ' - ';
-                                        echo date( 'd.m.Y', strtotime( $season['end_date'] ) );
-                                        ?>
-                                    </td>
+                                    <td data-colname="Zeitraum"><?php echo esc_html( tour_format_date_range( $season['start_date'], $season['end_date'] ) ); ?></td>
                                     <td data-colname="Aktiv">
                                         <?php if ( $season['active'] ): ?>
                                             <span class="dashicons dashicons-yes-alt tour-icon-yes"></span>

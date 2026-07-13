@@ -402,7 +402,7 @@ function display_preview_table_and_options( $events ) {
                     <tr>
                         <th><label for="season_id">Saison auswählen</label></th>
                         <td>
-                            <select name="season_id" id="season_id" onchange="document.getElementById('new_season_wrapper').style.display = this.value == '0' ? 'block' : 'none';">
+                            <select name="season_id" id="season_id">
                                 <option value="">--- Bestehende Saison ---</option>
 								<?php foreach ( $seasons as $season ): ?>
                                     <option value="<?php echo esc_attr( $season->id ); ?>"><?php echo esc_html( $season->name ); ?></option>

@@ -38,6 +38,14 @@ function tour_scripts_backend() {
 		array(),
 		'1.4.0'
 	);
+
+	wp_enqueue_script(
+		'tour-admin-scripts',
+		plugins_url( 'assets/js/admin.js', __FILE__ ),
+		array(),
+		'1.0.0',
+		true
+	);
 }
 
 add_action( 'admin_enqueue_scripts', 'tour_scripts_backend' );
@@ -78,29 +86,37 @@ function setup_theme_admin_menus() {
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
-					Backend Functions inkludieren
+					Backend Helpers & Functions
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
+require_once plugin_dir_path( __FILE__ ) . 'functions/backend/tour-admin-helpers.php';
+
 function tour_overview() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_overview.php" );
 }
 
 function tour_events_page() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_events.php" );
 }
 
 function tour_categories_page() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_categories.php" );
 }
 
 function tour_seasons_page() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_seasons.php" );
 }
 
 function tour_transports_page() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_transports.php" );
 }
 
 function tour_importer_page() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_importer.php" );
 }
 
