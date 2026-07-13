@@ -165,7 +165,7 @@ $transports = $wpdb->get_results( "SELECT * FROM " . TOUR_TRANSPORTS . " ORDER B
                             </tr>
                         </table>
 
-                        <p class="submit">
+                        <p class="submit tour-submit-row">
                             <input type="submit"
                                    name="submit"
                                    class="button button-primary"
@@ -190,7 +190,7 @@ $transports = $wpdb->get_results( "SELECT * FROM " . TOUR_TRANSPORTS . " ORDER B
                     <?php if ( empty( $transports ) ): ?>
                         <p>Keine Transporte gefunden. Fügen Sie einen neuen Transport hinzu.</p>
                     <?php else: ?>
-                        <table class="wp-list-table widefat fixed striped">
+                        <table class="wp-list-table widefat fixed striped tour-responsive-table">
                             <thead>
                             <tr>
                                 <th>Name</th>
@@ -202,34 +202,34 @@ $transports = $wpdb->get_results( "SELECT * FROM " . TOUR_TRANSPORTS . " ORDER B
                             <tbody>
                             <?php foreach ( $transports as $transport ): ?>
                                 <tr>
-                                    <td>
+                                    <td data-colname="Name">
                                         <strong><?php echo esc_html( $transport['name'] ); ?></strong>
                                     </td>
-                                    <td>
+                                    <td data-colname="Standard">
                                         <?php if ( $transport['default'] ): ?>
-                                            <span class="dashicons dashicons-yes"
-                                                  style="color: #00a32a;"></span>
+                                            <span class="dashicons dashicons-yes tour-icon-yes"></span>
                                         <?php else: ?>
-                                            <span class="dashicons dashicons-no"
-                                                  style="color: #d63638;"></span>
+                                            <span class="dashicons dashicons-no tour-icon-no"></span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo esc_html( date( 'd.m.Y H:i', strtotime( $transport['created_at'] ) ) ); ?></td>
-                                    <td>
-                                        <a href="<?php echo admin_url( 'admin.php?page=tour_transports&action=edit&id=' . $transport['id'] ); ?>"
-                                           class="button button-small">Bearbeiten</a>
+                                    <td data-colname="Erstellt"><?php echo esc_html( date( 'd.m.Y H:i', strtotime( $transport['created_at'] ) ) ); ?></td>
+                                    <td data-colname="Aktionen">
+                                        <div class="tour-table-actions">
+                                            <a href="<?php echo admin_url( 'admin.php?page=tour_transports&action=edit&id=' . $transport['id'] ); ?>"
+                                               class="button button-small">Bearbeiten</a>
 
-                                        <form method="post" style="display: inline;"
-                                              onsubmit="return confirm('Sind Sie sicher, dass Sie diesen Transport löschen möchten?');">
-                                            <?php wp_nonce_field( 'tour_transport_action' ); ?>
-                                            <input type="hidden" name="tour_transport_action"
-                                                   value="delete">
-                                            <input type="hidden" name="transport_id"
-                                                   value="<?php echo esc_attr( $transport['id'] ); ?>">
-                                            <input type="submit"
-                                                   class="button button-small button-link-delete"
-                                                   value="Löschen">
-                                        </form>
+                                            <form method="post"
+                                                  onsubmit="return confirm('Sind Sie sicher, dass Sie diesen Transport löschen möchten?');">
+                                                <?php wp_nonce_field( 'tour_transport_action' ); ?>
+                                                <input type="hidden" name="tour_transport_action"
+                                                       value="delete">
+                                                <input type="hidden" name="transport_id"
+                                                       value="<?php echo esc_attr( $transport['id'] ); ?>">
+                                                <input type="submit"
+                                                       class="button button-small button-link-delete"
+                                                       value="Löschen">
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

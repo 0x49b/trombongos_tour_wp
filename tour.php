@@ -25,12 +25,18 @@ define( 'TOUR_EVENTS', $wpdb->prefix . 'tour_events' );
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 
 function tour_scripts_backend() {
-	// Enqueue admin styles
+	$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+	$tour_pages = array( 'trb_tour', 'tour_events', 'tour_categories', 'tour_seasons', 'tour_transports', 'tour_importer' );
+
+	if ( ! in_array( $page, $tour_pages, true ) ) {
+		return;
+	}
+
 	wp_enqueue_style(
 		'tour-admin-styles',
 		plugins_url( 'assets/css/admin.css', __FILE__ ),
 		array(),
-		'1.3.0'
+		'1.4.0'
 	);
 }
 
@@ -97,11 +103,6 @@ function tour_transports_page() {
 function tour_importer_page() {
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_importer.php" );
 }
-
-/*--------------------------------------------------------------------------------------------------------------------------------------------*\
-					Alle Klassen aus dem Ordner <class> inkludieren
-\*--------------------------------------------------------------------------------------------------------------------------------------------*/
-include_once( plugin_dir_path( __FILE__ ) . "class/class-tour-list-tables.php" );
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					REST API inkludieren

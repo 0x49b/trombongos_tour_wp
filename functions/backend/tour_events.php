@@ -593,7 +593,7 @@ if ( ! $form_mode ) {
                     </div>
                 </div>
 
-                <p class="submit">
+                <p class="submit tour-submit-row">
                     <input type="submit" name="submit" class="button button-primary button-large"
                            value="<?php echo $edit_event ? 'Auftritt aktualisieren' : 'Auftritt hinzufügen'; ?>">
                     <a href="<?php echo admin_url( 'admin.php?page=tour_events' ); ?>"
@@ -703,8 +703,7 @@ if ( ! $form_mode ) {
 
         <!-- Filters -->
         <div class="tablenav top">
-            <form method="get" action=""
-                  style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <form method="get" action="" class="tour-filter-bar">
                 <input type="hidden" name="page" value="tour_events">
 
                 <select name="filter_season">
@@ -770,7 +769,7 @@ if ( ! $form_mode ) {
                 </div>
             </div>
 
-            <table class="wp-list-table widefat fixed striped tour-events-table">
+            <table class="wp-list-table widefat fixed striped tour-responsive-table tour-events-table">
                 <thead>
                 <tr>
                     <td class="check-column"><input type="checkbox" id="cb-select-all"></td>
@@ -785,7 +784,7 @@ if ( ! $form_mode ) {
                 <tbody>
 				<?php foreach ( $events as $event ): ?>
                     <tr>
-                        <th class="check-column">
+                        <th class="check-column" data-colname="Auswahl">
                             <input type="checkbox" name="event_ids[]"
                                    value="<?php echo esc_attr( $event['id'] ); ?>"
                                    class="event-checkbox">

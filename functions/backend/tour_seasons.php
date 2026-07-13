@@ -259,7 +259,7 @@ $seasons = $wpdb->get_results( "SELECT * FROM " . TOUR_SEASONS . " ORDER BY star
                             </tr>
                         </table>
 
-                        <p class="submit">
+                        <p class="submit tour-submit-row">
                             <input type="submit"
                                    name="submit"
                                    class="button button-primary"
@@ -284,7 +284,7 @@ $seasons = $wpdb->get_results( "SELECT * FROM " . TOUR_SEASONS . " ORDER BY star
                     <?php if ( empty( $seasons ) ): ?>
                         <p>Keine Saisons gefunden. Fügen Sie eine neue Saison hinzu.</p>
                     <?php else: ?>
-                        <table class="wp-list-table widefat fixed striped">
+                        <table class="wp-list-table widefat fixed striped tour-responsive-table">
                             <thead>
                             <tr>
                                 <th>Name</th>
@@ -295,28 +295,26 @@ $seasons = $wpdb->get_results( "SELECT * FROM " . TOUR_SEASONS . " ORDER BY star
                             </thead>
                             <tbody>
                             <?php foreach ( $seasons as $season ): ?>
-                                <tr <?php echo $season['active'] ? 'style="background-color: #f0f6fc;"' : ''; ?>>
-                                    <td>
+                                <tr class="<?php echo $season['active'] ? 'tour-season-active' : ''; ?>">
+                                    <td data-colname="Name">
                                         <strong><?php echo esc_html( $season['name'] ); ?></strong>
                                         <?php if ( $season['active'] ): ?>
-                                            <span class="dashicons dashicons-star-filled"
-                                                  style="color: #f0b849;"
+                                            <span class="dashicons dashicons-star-filled tour-icon-star"
                                                   title="Aktive Saison"></span>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
+                                    <td data-colname="Zeitraum">
                                         <?php
                                         echo date( 'd.m.Y', strtotime( $season['start_date'] ) );
                                         echo ' - ';
                                         echo date( 'd.m.Y', strtotime( $season['end_date'] ) );
                                         ?>
                                     </td>
-                                    <td>
+                                    <td data-colname="Aktiv">
                                         <?php if ( $season['active'] ): ?>
-                                            <span class="dashicons dashicons-yes-alt"
-                                                  style="color: #00a32a;"></span>
+                                            <span class="dashicons dashicons-yes-alt tour-icon-yes"></span>
                                         <?php else: ?>
-                                            <form method="post" style="display: inline;">
+                                            <form method="post">
                                                 <?php wp_nonce_field( 'tour_season_action' ); ?>
                                                 <input type="hidden" name="tour_season_action"
                                                        value="toggle_active">
@@ -329,23 +327,25 @@ $seasons = $wpdb->get_results( "SELECT * FROM " . TOUR_SEASONS . " ORDER BY star
                                             </form>
                                         <?php endif; ?>
                                     </td>
-                                    <td>
-                                        <a href="<?php echo admin_url( 'admin.php?page=tour_seasons&action=edit&id=' . $season['id'] ); ?>"
-                                           class="button button-small">Bearbeiten</a>
+                                    <td data-colname="Aktionen">
+                                        <div class="tour-table-actions">
+                                            <a href="<?php echo admin_url( 'admin.php?page=tour_seasons&action=edit&id=' . $season['id'] ); ?>"
+                                               class="button button-small">Bearbeiten</a>
 
-                                        <?php if ( ! $season['active'] ): ?>
-                                            <form method="post" style="display: inline;"
-                                                  onsubmit="return confirm('Sind Sie sicher, dass Sie diese Saison löschen möchten?');">
-                                                <?php wp_nonce_field( 'tour_season_action' ); ?>
-                                                <input type="hidden" name="tour_season_action"
-                                                       value="delete">
-                                                <input type="hidden" name="season_id"
-                                                       value="<?php echo esc_attr( $season['id'] ); ?>">
-                                                <input type="submit"
-                                                       class="button button-small button-link-delete"
-                                                       value="Löschen">
-                                            </form>
-                                        <?php endif; ?>
+                                            <?php if ( ! $season['active'] ): ?>
+                                                <form method="post"
+                                                      onsubmit="return confirm('Sind Sie sicher, dass Sie diese Saison löschen möchten?');">
+                                                    <?php wp_nonce_field( 'tour_season_action' ); ?>
+                                                    <input type="hidden" name="tour_season_action"
+                                                           value="delete">
+                                                    <input type="hidden" name="season_id"
+                                                           value="<?php echo esc_attr( $season['id'] ); ?>">
+                                                    <input type="submit"
+                                                           class="button button-small button-link-delete"
+                                                           value="Löschen">
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

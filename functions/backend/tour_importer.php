@@ -367,8 +367,8 @@ function display_preview_table_and_options( $events ) {
     <h2>Schritt 2: Vorschau und Saison auswählen</h2>
     <p>Überprüfe die importierten Daten. Leere Felder werden mit den Standardwerten der Datenbank gefüllt.</p>
 
-    <div style="max-height: 400px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #c3c4c7;">
-        <table class="wp-list-table widefat fixed striped">
+    <div class="tour-table-scroll">
+        <table class="wp-list-table widefat fixed striped tour-responsive-table">
             <thead>
             <tr>
                 <th>Sort</th><th>Name</th><th>Kategorie</th><th>Datum</th><th>Ort</th><th>Typ</th><th>Transport</th><th>Fix</th><th>Öffentlich</th>
@@ -377,15 +377,15 @@ function display_preview_table_and_options( $events ) {
             <tbody>
 			<?php foreach ( $events as $event ): ?>
                 <tr>
-                    <td><?php echo esc_html( $event['sort'] ?? '' ); ?></td>
-                    <td><?php echo esc_html( $event['name'] ?? '' ); ?></td>
-                    <td><?php echo esc_html( $event['category_name'] ?? '' ); ?></td>
-                    <td><?php echo esc_html( $event['date'] ?? '' ); ?></td>
-                    <td><?php echo esc_html( $event['location'] ?? '' ); ?></td>
-                    <td><?php echo esc_html( $event['type'] ?? '' ); ?></td>
-                    <td><?php echo esc_html( $event['transport_name'] ?? '' ); ?></td>
-                    <td><?php echo (isset($event['fix']) && strtolower($event['fix']) === 'x') ? 'Ja' : 'Nein'; ?></td>
-                    <td><?php echo (isset($event['public']) && strtolower($event['public']) === 'x') ? 'Ja' : 'Nein'; ?></td>
+                    <td data-colname="Sort"><?php echo esc_html( $event['sort'] ?? '' ); ?></td>
+                    <td data-colname="Name"><?php echo esc_html( $event['name'] ?? '' ); ?></td>
+                    <td data-colname="Kategorie"><?php echo esc_html( $event['category_name'] ?? '' ); ?></td>
+                    <td data-colname="Datum"><?php echo esc_html( $event['date'] ?? '' ); ?></td>
+                    <td data-colname="Ort"><?php echo esc_html( $event['location'] ?? '' ); ?></td>
+                    <td data-colname="Typ"><?php echo esc_html( $event['type'] ?? '' ); ?></td>
+                    <td data-colname="Transport"><?php echo esc_html( $event['transport_name'] ?? '' ); ?></td>
+                    <td data-colname="Fix"><?php echo (isset($event['fix']) && strtolower($event['fix']) === 'x') ? 'Ja' : 'Nein'; ?></td>
+                    <td data-colname="Öffentlich"><?php echo (isset($event['public']) && strtolower($event['public']) === 'x') ? 'Ja' : 'Nein'; ?></td>
                 </tr>
 			<?php endforeach; ?>
             </tbody>

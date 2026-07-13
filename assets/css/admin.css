@@ -8,12 +8,10 @@
     margin  : 0;
 }
 
-/* Ensure consistent spacing for all postbox headers */
 .postbox .postbox-header {
     border-bottom : 1px solid #c3c4c7;
 }
 
-/* Fix spacing in postbox content */
 .postbox .inside {
     margin  : 0;
     padding : 12px;
@@ -28,11 +26,122 @@
     line-height : 0.7em;
 }
 
+/* Dashboard stat cards */
+.tour-stat-card {
+    padding : 15px;
+}
+
+.tour-stat-card h3 {
+    margin : 0 0 10px 0;
+}
+
+.tour-stat-card .tour-stat-value {
+    font-size   : 24px;
+    margin      : 0;
+    font-weight : bold;
+}
+
+.tour-stat-card .tour-stat-sub {
+    margin    : 5px 0 0 0;
+    font-size : 12px;
+    color     : #666;
+}
+
+/* Sidebar filter form */
+.tour-filter-form {
+    margin-bottom  : 15px;
+    padding-bottom : 15px;
+    border-bottom  : 1px solid #dcdcde;
+}
+
+.tour-filter-form label {
+    display       : block;
+    margin-bottom : 5px;
+}
+
+.tour-filter-form select {
+    width : 100%;
+}
+
+/* Active season row highlight */
+.tour-season-active {
+    background-color : #f0f6fc;
+}
+
+/* Status icons */
+.tour-icon-yes {
+    color : #00a32a;
+}
+
+.tour-icon-no {
+    color : #d63638;
+}
+
+.tour-icon-star {
+    color : #f0b849;
+}
+
+/* Modal overlay */
+.tour-modal-overlay {
+    display          : none;
+    position         : fixed;
+    z-index          : 100000;
+    left             : 0;
+    top              : 0;
+    width            : 100%;
+    height           : 100%;
+    background-color : rgba(0, 0, 0, 0.5);
+    padding          : 20px;
+    box-sizing       : border-box;
+    overflow-y       : auto;
+}
+
+.tour-modal-overlay.is-open {
+    display : flex;
+    align-items    : flex-start;
+    justify-content : center;
+}
+
+.tour-modal-dialog {
+    background-color : #fff;
+    margin           : 5vh auto;
+    padding          : 20px;
+    border           : 1px solid #888;
+    width            : 100%;
+    max-width        : 500px;
+    border-radius    : 5px;
+    box-sizing       : border-box;
+}
+
+/* Scrollable table wrapper (importer preview) */
+.tour-table-scroll {
+    max-height    : 400px;
+    overflow      : auto;
+    margin-bottom : 20px;
+    border        : 1px solid #c3c4c7;
+    -webkit-overflow-scrolling : touch;
+}
+
+/* Action button groups in tables */
+.tour-table-actions {
+    display   : flex;
+    flex-wrap : wrap;
+    gap       : 4px;
+}
+
+.tour-table-actions form {
+    display : inline;
+}
+
+/* Submit button row */
+.tour-submit-row .button {
+    margin-bottom : 8px;
+}
+
 /* ============================================
-   RESPONSIVE STYLES FOR MOBILE DEVICES
+   LAYOUT - DESKTOP
    ============================================ */
 
-/* Make containers responsive */
 .tour-category-container,
 .tour-season-container,
 .tour-transport-container,
@@ -42,20 +151,21 @@
     margin-top : 20px;
 }
 
-/* Container forms and lists - default desktop layout */
 .tour-category-form,
 .tour-season-form,
 .tour-transport-form {
-    flex : 0 0 500px;
+    flex      : 0 0 500px;
+    max-width : 500px;
+    min-width : 0;
 }
 
 .tour-category-list,
 .tour-season-list,
 .tour-transport-list {
-    flex : 1;
+    flex      : 1;
+    min-width : 0;
 }
 
-/* Dashboard - main grid layout */
 .tour-dashboard {
     display               : grid;
     grid-template-columns : 1fr;
@@ -63,7 +173,6 @@
     margin-top            : 20px;
 }
 
-/* Dashboard grids */
 .tour-stats-grid {
     display               : grid;
     grid-template-columns : repeat(4, 1fr);
@@ -76,59 +185,92 @@
     gap                   : 20px;
 }
 
-/* Event form columns */
 .tour-event-form-columns {
     display : flex;
     gap     : 20px;
 }
 
 .tour-event-form-column {
-    flex : 1;
+    flex      : 1;
+    min-width : 0;
 }
 
-/* Mobile: Stack containers vertically */
-@media screen and (max-width : 782px) {
+/* Filter bar flex layout */
+.tour-filter-bar {
+    display     : flex;
+    gap         : 10px;
+    align-items : center;
+    flex-wrap   : wrap;
+}
+
+/* ============================================
+   TABLET BREAKPOINT
+   ============================================ */
+
+@media screen and (max-width : 1200px) {
+    .tour-stats-grid {
+        grid-template-columns : repeat(2, 1fr);
+    }
+
+    .tour-content-grid {
+        grid-template-columns : 1fr;
+    }
+
+    .tour-category-form,
+    .tour-season-form,
+    .tour-transport-form {
+        flex      : 0 0 380px;
+        max-width : 380px;
+    }
+}
+
+@media screen and (max-width : 960px) {
     .tour-category-container,
     .tour-season-container,
-    .tour-transport-container {
+    .tour-transport-container,
+    .tour-event-form {
         flex-direction : column;
     }
 
     .tour-category-form,
-    .tour-category-list,
     .tour-season-form,
-    .tour-season-list,
     .tour-transport-form,
+    .tour-category-list,
+    .tour-season-list,
     .tour-transport-list {
-        flex      : 1 !important;
-        max-width : 100% !important;
+        flex      : 1;
+        max-width : 100%;
     }
 
-    /* Remove fixed widths on mobile */
-    .tour-category-form,
-    .tour-season-form,
-    .tour-transport-form {
-        flex      : 1 !important;
-        min-width : auto !important;
+    .tour-event-form-columns {
+        flex-direction : column;
     }
+}
 
-    /* Stack dashboard grids */
-    .tour-dashboard {
-        grid-template-columns : 1fr !important;
-        gap                   : 15px !important;
-    }
+/* ============================================
+   MOBILE BREAKPOINT (WordPress admin standard)
+   ============================================ */
 
+@media screen and (max-width : 782px) {
     .tour-stats-grid {
-        grid-template-columns : 1fr !important;
+        grid-template-columns : 1fr;
     }
 
-    .tour-content-grid {
-        grid-template-columns : 1fr !important;
+    .tour-stat-card {
+        padding : 10px;
     }
 
-    /* Make filter forms stack */
+    .tour-stat-card h3 {
+        font-size : 14px;
+    }
+
+    .tour-stat-card .tour-stat-value {
+        font-size : 20px;
+    }
+
+    /* Filter forms stack */
     .tablenav.top form,
-    .tablenav.top form[style*='flex'] {
+    .tablenav.top .tour-filter-bar {
         flex-direction : column !important;
         align-items    : stretch !important;
     }
@@ -136,86 +278,16 @@
     .tablenav.top select,
     .tablenav.top input[type='search'],
     .tablenav.top input[type='submit'],
-    .tablenav.top .button {
+    .tablenav.top .button,
+    .tour-filter-bar select,
+    .tour-filter-bar input[type='search'],
+    .tour-filter-bar .button {
         width         : 100% !important;
-        margin-bottom : 10px;
+        margin-bottom : 8px;
+        box-sizing    : border-box;
     }
 
-    /* Event form two-column layout */
-    .tour-event-form-columns {
-        flex-direction : column !important;
-    }
-
-    .tour-event-form-column {
-        flex      : 1 !important;
-        max-width : 100% !important;
-    }
-
-    /* Responsive styles for tour events table */
-    .tour-events-table {
-        border  : 0;
-        display : block;
-    }
-
-    .tour-events-table thead {
-        display : none; /* Hide table headers */
-    }
-
-    .tour-events-table tr {
-        display       : block;
-        margin-bottom : 15px;
-        border        : 1px solid #c3c4c7;
-        border-radius : 4px;
-        overflow      : hidden;
-    }
-
-    .tour-events-table td {
-        display               : grid;
-        grid-template-columns : 120px 1fr;
-        align-items           : center;
-        padding               : 8px 12px;
-        border-top            : 1px solid #eee;
-    }
-
-    .tour-events-table td:first-child {
-        border-top : 0;
-    }
-
-    .tour-events-table td[data-colname]::before {
-        content      : attr(data-colname);
-        font-weight  : 600;
-        color        : #50575e;
-        margin-right : 10px;
-    }
-
-    .tour-events-table td[data-colname="Name"] {
-        font-size             : 1.2em;
-        font-weight           : bold;
-        grid-template-columns : 1fr;
-    }
-
-    .tour-events-table td[data-colname="Name"]::before,
-    .tour-events-table td[data-colname="Datum"]::before {
-        display : none;
-    }
-
-    .tour-events-table td[data-colname="Datum"] {
-        background-color : #f6f7f7;
-        font-weight: bold;
-        grid-template-columns: 1fr;
-    }
-
-    
-
-
-    .tour-events-table th.check-column {
-        width   : 40px;
-        padding : 12px;
-        display : block;
-    }
-
-
-    /* Adjust form table layout for mobile */
+    /* Form tables stack vertically */
     .form-table th {
         display    : block;
         width      : 100% !important;
@@ -230,6 +302,7 @@
     }
 
     .form-table input[type='text'],
+    .form-table input[type='url'],
     .form-table input[type='date'],
     .form-table input[type='time'],
     .form-table input[type='number'],
@@ -245,52 +318,141 @@
         width : 100% !important;
     }
 
-    /* Button adjustments */
+    /* Page title action */
     .page-title-action {
         display    : inline-block;
         margin-top : 10px;
     }
 
-    /* Action buttons in list tables */
-    .wp-list-table .button-small {
-        font-size : 11px;
-        padding   : 3px 8px;
-        margin    : 2px;
+    /* Submit buttons full width */
+    .tour-submit-row .button,
+    .tour-submit-row .button-primary {
+        display : block;
+        width   : 100%;
+        text-align : center;
+        box-sizing : border-box;
     }
 
-    /* Inline forms in tables */
-    .wp-list-table form[style*='inline'] {
-        display : inline-block;
-        margin  : 2px 0;
-    }
-
-    /* Statistics cards on dashboard */
-    .postbox[style*='padding: 15px'] {
-        padding : 10px !important;
-    }
-
-    .postbox[style*='padding: 15px'] h3 {
-        font-size : 14px;
-    }
-
-    .postbox[style*='padding: 15px'] p[style*='font-size: 24px'] {
-        font-size : 20px !important;
-    }
-
-    /* Bulk action selectors */
+    /* Bulk actions stack */
     .tablenav .alignleft.actions {
         display        : flex;
         flex-direction : column;
         width          : 100%;
+        float          : none;
     }
 
     .tablenav .alignleft.actions select,
     .tablenav .alignleft.actions button {
         width         : 100%;
         margin-bottom : 10px;
+        box-sizing    : border-box;
     }
 
-    /* Notice messages */
+    /* Modal full width on mobile */
+    .tour-modal-overlay {
+        padding : 10px;
+    }
+
+    .tour-modal-dialog {
+        margin  : 2vh auto;
+        padding : 15px;
+    }
+
+    /* ============================================
+       RESPONSIVE CARD TABLES
+       ============================================ */
+
+    .tour-responsive-table {
+        border  : 0;
+        display : block;
+    }
+
+    .tour-responsive-table thead {
+        display : none;
+    }
+
+    .tour-responsive-table tbody,
+    .tour-responsive-table tr {
+        display : block;
+    }
+
+    .tour-responsive-table tr {
+        margin-bottom : 15px;
+        border        : 1px solid #c3c4c7;
+        border-radius : 4px;
+        overflow      : hidden;
+        background    : #fff;
+    }
+
+    .tour-responsive-table td,
+    .tour-responsive-table th.check-column {
+        display               : grid;
+        grid-template-columns : 110px 1fr;
+        align-items           : center;
+        padding               : 8px 12px;
+        border-top            : 1px solid #eee;
+        width                 : 100% !important;
+        box-sizing            : border-box;
+    }
+
+    .tour-responsive-table td:first-child,
+    .tour-responsive-table th.check-column:first-child {
+        border-top : 0;
+    }
+
+    .tour-responsive-table td[data-colname]::before,
+    .tour-responsive-table th.check-column[data-colname]::before {
+        content     : attr(data-colname);
+        font-weight : 600;
+        color       : #50575e;
+        margin-right : 10px;
+    }
+
+    /* Primary title cell - full width, no label */
+    .tour-responsive-table td[data-colname="Name"],
+    .tour-responsive-table td[data-colname="Titel"] {
+        font-size             : 1.1em;
+        font-weight           : bold;
+        grid-template-columns : 1fr;
+        background-color      : #f6f7f7;
+    }
+
+    .tour-responsive-table td[data-colname="Name"]::before,
+    .tour-responsive-table td[data-colname="Titel"]::before {
+        display : none;
+    }
+
+    /* Checkbox column */
+    .tour-responsive-table th.check-column {
+        grid-template-columns : 110px 1fr;
+        text-align            : left;
+    }
+
+    .tour-responsive-table th.check-column input[type='checkbox'] {
+        justify-self : start;
+    }
+
+    /* Action buttons in card layout */
+    .tour-responsive-table .tour-table-actions {
+        flex-direction : column;
+    }
+
+    .tour-responsive-table .tour-table-actions .button {
+        width      : 100%;
+        text-align : center;
+        box-sizing : border-box;
+    }
+
+    /* Importer scroll: allow horizontal scroll for many columns on small screens */
+    .tour-table-scroll {
+        max-height : none;
+    }
+
+    .tour-table-scroll .tour-responsive-table {
+        min-width : 0;
+    }
+
+    /* Notices */
     .notice {
         margin : 5px 0 15px 0 !important;
     }
@@ -303,7 +465,8 @@
     .tablenav,
     .tour-category-form,
     .tour-season-form,
-    .tour-transport-form {
+    .tour-transport-form,
+    .tour-modal-overlay {
         display : none !important;
     }
 
@@ -312,5 +475,15 @@
     .tour-transport-list {
         flex      : 1;
         max-width : 100%;
+    }
+
+    .tour-responsive-table thead {
+        display : table-header-group;
+    }
+
+    .tour-responsive-table tr,
+    .tour-responsive-table td,
+    .tour-responsive-table th {
+        display : revert;
     }
 }

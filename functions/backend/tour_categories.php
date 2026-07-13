@@ -420,7 +420,7 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                             </tr>
                         </table>
 
-                        <p class="submit">
+                        <p class="submit tour-submit-row">
                             <input type="submit"
                                    name="submit"
                                    class="button button-primary"
@@ -470,7 +470,7 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                 </div>
                             </div>
 
-                            <table class="wp-list-table widefat striped">
+                            <table class="wp-list-table widefat striped tour-responsive-table">
                                 <thead>
                                 <tr>
                                     <td class="check-column"><input type="checkbox"
@@ -487,46 +487,42 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                 <tbody>
                                 <?php foreach ( $categories as $category ): ?>
                                     <tr>
-                                        <th class="check-column">
+                                        <th class="check-column" data-colname="Auswahl">
                                             <input type="checkbox" name="category_ids[]"
                                                    value="<?php echo esc_attr( $category['id'] ); ?>"
                                                    class="category-checkbox">
                                         </th>
-                                        <td>
+                                        <td data-colname="Titel">
                                             <strong>
                                                 <a href="<?php echo admin_url( 'admin.php?page=tour_categories&action=edit&id=' . $category['id'] ); ?>">
                                                     <?php echo esc_html( $category['title'] ); ?>
                                                 </a>
                                             </strong>
                                         </td>
-                                        <td><?php echo esc_html( $category['season_name'] ); ?></td>
-                                        <td>
+                                        <td data-colname="Saison"><?php echo esc_html( $category['season_name'] ); ?></td>
+                                        <td data-colname="Zeitraum">
                                             <?php
                                             echo date( 'd.m.Y', strtotime( $category['date_start'] ) );
                                             echo ' - ';
                                             echo date( 'd.m.Y', strtotime( $category['date_end'] ) );
                                             ?>
                                         </td>
-                                        <td><?php echo esc_html( $category['event_count'] ); ?></td>
-                                        <td><?php echo esc_html( $category['sort'] ); ?></td>
-                                        <td>
+                                        <td data-colname="Auftritte"><?php echo esc_html( $category['event_count'] ); ?></td>
+                                        <td data-colname="Sort"><?php echo esc_html( $category['sort'] ); ?></td>
+                                        <td data-colname="Öffentlich">
                                             <?php if ( $category['public'] ): ?>
-                                                <span class="dashicons dashicons-yes"
-                                                      style="color: #00a32a;"></span>
+                                                <span class="dashicons dashicons-yes tour-icon-yes"></span>
                                             <?php else: ?>
-                                                <span class="dashicons dashicons-no"
-                                                      style="color: #d63638;"></span>
+                                                <span class="dashicons dashicons-no tour-icon-no"></span>
                                             <?php endif; ?>
                                         </td>
-                                        <td>
-                    
-
-                                            <button type="button" class="button button-small"
-                                                    onclick="showCopyModal(<?php echo $category['id']; ?>, '<?php echo esc_js( $category['title'] ); ?>')">
-                                                Kopieren
-                                            </button>
-
-
+                                        <td data-colname="Aktionen">
+                                            <div class="tour-table-actions">
+                                                <button type="button" class="button button-small"
+                                                        onclick="showCopyModal(<?php echo $category['id']; ?>, '<?php echo esc_js( $category['title'] ); ?>')">
+                                                    Kopieren
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -535,9 +531,8 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                         </form>
 
                         <!-- Copy Modal -->
-                        <div id="copy-category-modal"
-                             style="display: none; position: fixed; z-index: 100000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
-                            <div style="background-color: white; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 500px; border-radius: 5px;">
+                        <div id="copy-category-modal" class="tour-modal-overlay">
+                            <div class="tour-modal-dialog">
                                 <h2>Kategorie kopieren</h2>
                                 <p>Kategorie "<strong id="copy-category-name"></strong>" in welche
                                     Saison kopieren?</p>
@@ -579,11 +574,11 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                             function showCopyModal(categoryId, categoryName) {
                                 document.getElementById('copy-category-id').value = categoryId;
                                 document.getElementById('copy-category-name').textContent = categoryName;
-                                document.getElementById('copy-category-modal').style.display = 'block';
+                                document.getElementById('copy-category-modal').classList.add('is-open');
                             }
 
                             function hideCopyModal() {
-                                document.getElementById('copy-category-modal').style.display = 'none';
+                                document.getElementById('copy-category-modal').classList.remove('is-open');
                             }
 
                             // Close modal when clicking outside

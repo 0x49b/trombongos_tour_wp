@@ -90,13 +90,13 @@ $recent_events = $wpdb->get_results( $recent_events_query, ARRAY_A );
         <!-- Statistics Cards -->
         <div class="tour-stats-grid">
 
-            <div class="postbox" style="padding: 15px;">
-                <h3 style="margin: 0 0 10px 0;">
+            <div class="postbox tour-stat-card">
+                <h3>
                     <span class="dashicons dashicons-calendar-alt stat-icon"
                           style="color: #2271b1;"></span>
                     <?php echo $filter_season > 0 && $display_season['active'] != '1' ? 'Saison <span class="filter-active">Filter aktiv</span>' : 'Saison'; ?>
                 </h3>
-                <p style="font-size: 24px; margin: 0; font-weight: bold;">
+                <p class="tour-stat-value">
                     <?php
                     if ( $filter_season > 0 ) {
                         echo $display_season ? esc_html( $display_season['name'] ) : 'Nicht gefunden';
@@ -107,38 +107,38 @@ $recent_events = $wpdb->get_results( $recent_events_query, ARRAY_A );
                 </p>
             </div>
 
-            <div class="postbox" style="padding: 15px;">
-                <h3 style="margin: 0 0 10px 0;">
+            <div class="postbox tour-stat-card">
+                <h3>
                     <span class="dashicons dashicons-tickets-alt stat-icon"
                           style="color: #00a32a;"></span>
                     Kommende Auftritte
                 </h3>
-                <p style="font-size: 24px; margin: 0; font-weight: bold;">
+                <p class="tour-stat-value">
                     <?php echo $upcoming_events; ?>
                 </p>
-                <p style="margin: 5px 0 0 0; font-size: 12px; color: #666;">
+                <p class="tour-stat-sub">
                     Bestätigt & Zukünftig
                 </p>
             </div>
 
-            <div class="postbox" style="padding: 15px;">
-                <h3 style="margin: 0 0 10px 0;">
+            <div class="postbox tour-stat-card">
+                <h3>
                     <span class="dashicons dashicons-yes-alt stat-icon"
                           style="color: #dba617;"></span>
                     Bestätigte Auftritte
                 </h3>
-                <p style="font-size: 24px; margin: 0; font-weight: bold;">
+                <p class="tour-stat-value">
                     <?php echo $fix_events; ?> / <?php echo $total_events; ?>
                 </p>
             </div>
 
-            <div class="postbox" style="padding: 15px;">
-                <h3 style="margin: 0 0 10px 0;">
+            <div class="postbox tour-stat-card">
+                <h3>
                     <span class="dashicons dashicons-visibility stat-icon"
                           style="color: #7e8993;"></span>
                     Öffentliche Auftritte
                 </h3>
-                <p style="font-size: 24px; margin: 0; font-weight: bold;">
+                <p class="tour-stat-value">
                     <?php echo $public_events; ?>
                 </p>
             </div>
@@ -156,7 +156,7 @@ $recent_events = $wpdb->get_results( $recent_events_query, ARRAY_A );
                     <?php if ( empty( $recent_events ) ): ?>
                         <p>Keine kommenden Auftritte gefunden.</p>
                     <?php else: ?>
-                        <table class="wp-list-table widefat striped">
+                        <table class="wp-list-table widefat striped tour-responsive-table">
                             <thead>
                             <tr>
                                 <th>Datum</th>
@@ -171,23 +171,23 @@ $recent_events = $wpdb->get_results( $recent_events_query, ARRAY_A );
                             <tbody>
                             <?php foreach ( $recent_events as $event ): ?>
                                 <tr>
-                                    <td><?php echo date( 'd.m.Y', strtotime( $event['date'] ) ); ?></td>
-                                    <td><strong><?php echo esc_html( $event['name'] ); ?></strong>
+                                    <td data-colname="Datum"><?php echo date( 'd.m.Y', strtotime( $event['date'] ) ); ?></td>
+                                    <td data-colname="Name"><strong><?php echo esc_html( $event['name'] ); ?></strong>
                                     </td>
-                                    <td><?php echo esc_html( $event['category_title'] ); ?></td>
+                                    <td data-colname="Kategorie"><?php echo esc_html( $event['category_title'] ); ?></td>
                                     <?php if ( $filter_season == 0 ): ?>
-                                        <td><?php echo esc_html( $event['season_name'] ?? 'Alle Saisons' ); ?></td>
+                                        <td data-colname="Saison"><?php echo esc_html( $event['season_name'] ?? 'Alle Saisons' ); ?></td>
                                     <?php endif; ?>
-                                    <td><?php echo esc_html( $event['location'] ); ?></td>
+                                    <td data-colname="Ort"><?php echo esc_html( $event['location'] ); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>
                         </table>
-                        <p style="margin-top: 10px;">
+                        <p class="tour-submit-row" style="margin-top: 10px;">
                             <a href="<?php echo admin_url( 'admin.php?page=tour_events' ); ?>"
                                class="button">Alle Auftritte anzeigen</a>
                             <a href="<?php echo admin_url( 'admin.php?page=tour_events&action=add' ); ?>"
-                               class="button">Neuen Auftritt hinzufügen</a></p>
+                               class="button">Neuen Auftritt hinzufügen</a>
                         </p>
                     <?php endif; ?>
                 </div>
@@ -201,14 +201,12 @@ $recent_events = $wpdb->get_results( $recent_events_query, ARRAY_A );
                     </div>
                     <div class="inside">
                         <!-- Season Filter -->
-                        <form method="get" action=""
-                              style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #dcdcde;">
+                        <form method="get" action="" class="tour-filter-form">
                             <input type="hidden" name="page" value="trb_tour">
                             <p style="margin: 0 0 8px 0;">
-                                <label for="filter_season"
-                                       style="display: block; margin-bottom: 5px;"><strong>Saison:</strong></label>
+                                <label for="filter_season"><strong>Saison:</strong></label>
                                 <select name="filter_season" id="filter_season"
-                                        onchange="this.form.submit()" style="width: 100%;">
+                                        onchange="this.form.submit()">
                                     <option value="0" <?php selected( $filter_season, 0 ); ?>>Alle
                                         Saisons
                                     </option>
