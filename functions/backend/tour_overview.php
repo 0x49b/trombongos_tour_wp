@@ -205,8 +205,7 @@ $recent_events = $wpdb->get_results( $recent_events_query, ARRAY_A );
                             <input type="hidden" name="page" value="trb_tour">
                             <p style="margin: 0 0 8px 0;">
                                 <label for="filter_season"><strong>Saison:</strong></label>
-                                <select name="filter_season" id="filter_season"
-                                        onchange="this.form.submit()">
+                                <select name="filter_season" id="filter_season" data-tour-auto-submit>
                                     <option value="0" <?php selected( $filter_season, 0 ); ?>>Alle
                                         Saisons
                                     </option>

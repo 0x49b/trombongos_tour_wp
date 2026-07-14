@@ -3,11 +3,34 @@
 
 	document.addEventListener('DOMContentLoaded', function () {
 		initSelectAll();
+		initAutoSubmit();
+		initConfirmForms();
 		initCategoryPage();
 		initEventForm();
 		initEventsBulk();
 		initImporter();
 	});
+
+	function initAutoSubmit() {
+		document.querySelectorAll('[data-tour-auto-submit]').forEach(function (element) {
+			element.addEventListener('change', function () {
+				if (element.form) {
+					element.form.submit();
+				}
+			});
+		});
+	}
+
+	function initConfirmForms() {
+		document.querySelectorAll('form[data-tour-confirm]').forEach(function (form) {
+			form.addEventListener('submit', function (event) {
+				var message = form.getAttribute('data-tour-confirm');
+				if (message && !window.confirm(message)) {
+					event.preventDefault();
+				}
+			});
+		});
+	}
 
 	function initSelectAll() {
 		document.querySelectorAll('[data-tour-select-all]').forEach(function (selectAll) {

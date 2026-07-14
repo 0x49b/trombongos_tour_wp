@@ -43,7 +43,7 @@ function tour_scripts_backend() {
 		'tour-admin-scripts',
 		plugins_url( 'assets/js/admin.js', __FILE__ ),
 		array(),
-		'1.0.0',
+		'1.0.1',
 		true
 	);
 }

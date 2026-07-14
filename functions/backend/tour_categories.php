@@ -6,11 +6,9 @@
 global $wpdb;
 
 // Handle form submissions
-if ( isset( $_POST['tour_category_action'] ) ) {
-    check_admin_referer( 'tour_category_action' );
+$action = tour_admin_verify_post_action( 'tour_category_action', 'tour_category_action' );
 
-    $action = sanitize_text_field( $_POST['tour_category_action'] );
-
+if ( $action ) {
     if ( $action === 'add' || $action === 'edit' ) {
         $title      = sanitize_text_field( $_POST['category_title'] );
         $season_id  = intval( $_POST['season_id'] );
@@ -19,8 +17,7 @@ if ( isset( $_POST['tour_category_action'] ) ) {
         $public     = isset( $_POST['public'] ) ? 1 : 0;
         $sort       = intval( $_POST['sort'] );
 
-        // Validation
-        $errors = array();
+        $errors = tour_validate_date_range( $date_start, $date_end );
 
         if ( empty( $title ) ) {
             $errors[] = 'Titel ist erforderlich.';
@@ -28,18 +25,6 @@ if ( isset( $_POST['tour_category_action'] ) ) {
 
         if ( empty( $season_id ) ) {
             $errors[] = 'Saison ist erforderlich.';
-        }
-
-        if ( empty( $date_start ) ) {
-            $errors[] = 'Startdatum ist erforderlich.';
-        }
-
-        if ( empty( $date_end ) ) {
-            $errors[] = 'Enddatum ist erforderlich.';
-        }
-
-        if ( ! empty( $date_start ) && ! empty( $date_end ) && strtotime( $date_end ) < strtotime( $date_start ) ) {
-            $errors[] = 'Enddatum darf nicht vor dem Startdatum liegen.';
         }
 
         if ( empty( $errors ) ) {
@@ -60,11 +45,16 @@ if ( isset( $_POST['tour_category_action'] ) ) {
                         array( '%s', '%s', '%s', '%s', '%d', '%d', '%d' )
                 );
 
-                if ( $result ) {
-                    tour_admin_notice( 'success', 'Kategorie erfolgreich hinzugefügt.' );
-                } else {
-                    tour_admin_notice( 'error', 'Fehler beim Hinzufügen der Kategorie.' );
-                }
+                tour_admin_save_result_notice(
+                    $result,
+                    array(
+                        'add_success'  => 'Kategorie erfolgreich hinzugefügt.',
+                        'add_error'    => 'Fehler beim Hinzufügen der Kategorie.',
+                        'edit_success' => 'Kategorie erfolgreich aktualisiert.',
+                        'edit_error'   => 'Fehler beim Aktualisieren der Kategorie.',
+                    ),
+                    true
+                );
             } else {
                 $id = intval( $_POST['category_id'] );
 
@@ -83,11 +73,16 @@ if ( isset( $_POST['tour_category_action'] ) ) {
                         array( '%d' )
                 );
 
-                if ( $result !== false ) {
-                    tour_admin_notice( 'success', 'Kategorie erfolgreich aktualisiert.' );
-                } else {
-                    tour_admin_notice( 'error', 'Fehler beim Aktualisieren der Kategorie.' );
-                }
+                tour_admin_save_result_notice(
+                    $result,
+                    array(
+                        'add_success'  => 'Kategorie erfolgreich hinzugefügt.',
+                        'add_error'    => 'Fehler beim Hinzufügen der Kategorie.',
+                        'edit_success' => 'Kategorie erfolgreich aktualisiert.',
+                        'edit_error'   => 'Fehler beim Aktualisieren der Kategorie.',
+                    ),
+                    false
+                );
             }
         } else {
             tour_admin_notices( 'error', $errors );
@@ -275,32 +270,19 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
 
 ?>
 
-<div class="wrap">
-    <h1 class="wp-heading-inline">Kategorien Verwaltung</h1>
-    <a href="<?php echo admin_url( 'admin.php?page=tour_categories' ); ?>"
-       class="page-title-action">Neu hinzufügen</a>
-    <hr class="wp-header-end">
-
-    <?php tour_render_season_filter_form( 'tour_categories', $filter_season, $seasons ); ?>
-
-    <div class="tour-category-container">
-
-        <!-- Form Section -->
-        <div class="tour-category-form">
-            <div class="postbox">
-                <div class="postbox-header">
-                    <h2><?php echo $edit_category ? 'Kategorie bearbeiten' : 'Neue Kategorie'; ?></h2>
-                </div>
-                <div class="inside">
-                    <form method="post" action="">
-                        <?php wp_nonce_field( 'tour_category_action' ); ?>
-                        <input type="hidden" name="tour_category_action"
-                               value="<?php echo $edit_category ? 'edit' : 'add'; ?>">
-                        <?php if ( $edit_category ): ?>
-                            <input type="hidden" name="category_id"
-                                   value="<?php echo esc_attr( $edit_category['id'] ); ?>">
-                        <?php endif; ?>
-
+<?php
+tour_admin_page_header( 'Kategorien Verwaltung', 'tour_categories' );
+tour_render_season_filter_form( 'tour_categories', $filter_season, $seasons );
+tour_admin_crud_layout_open( 'category' );
+tour_admin_crud_form_open( 'category', $edit_category ? 'Kategorie bearbeiten' : 'Neue Kategorie' );
+tour_admin_crud_form_begin(
+    'tour_category_action',
+    'tour_category_action',
+    $edit_category ? 'edit' : 'add',
+    $edit_category ? $edit_category['id'] : null,
+    'category_id'
+);
+?>
                         <table class="form-table">
                             <tr>
                                 <th scope="row">
@@ -380,28 +362,11 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                             </tr>
                         </table>
 
-                        <p class="submit tour-submit-row">
-                            <input type="submit"
-                                   name="submit"
-                                   class="button button-primary"
-                                   value="<?php echo $edit_category ? 'Aktualisieren' : 'Hinzufügen'; ?>">
-                            <?php if ( $edit_category ): ?>
-                                <a href="<?php echo admin_url( 'admin.php?page=tour_categories' ); ?>"
-                                   class="button">Abbrechen</a>
-                            <?php endif; ?>
-                        </p>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- List Section -->
-        <div class="tour-category-list">
-            <div class="postbox">
-                <div class="postbox-header">
-                    <h2>Alle Kategorien</h2>
-                </div>
-                <div class="inside">
+<?php
+tour_admin_crud_form_actions( 'tour_categories', (bool) $edit_category );
+tour_admin_crud_form_close();
+tour_admin_crud_list_open( 'category', 'Alle Kategorien' );
+?>
                     <?php if ( empty( $categories ) ): ?>
                         <p>Keine Kategorien gefunden. Fügen Sie eine neue Kategorie hinzu.</p>
                     <?php else: ?>
@@ -416,7 +381,6 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                                         <option value="bulk_delete">Löschen</option>
                                     </select>
                                     <select name="target_season_id" id="target-season-selector">
-                                        <option value="">Ziel-Saison wählen...</option>
                                         <?php tour_render_season_options( $seasons, 0, true, 'Ziel-Saison wählen...' ); ?>
                                     </select>
                                     <button type="submit" class="button" data-tour-bulk-apply>Anwenden</button>
@@ -507,9 +471,5 @@ $categories = $wpdb->get_results( $query, ARRAY_A );
                         </div>
 
                     <?php endif; ?>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</div>
+<?php
+tour_admin_crud_layout_close();
