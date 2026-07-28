@@ -15,57 +15,71 @@ add_action( 'rest_api_init', function () {
 
 /**
  * Generate UUID v4
+ *
+ * Wrapped in function_exists() to stay resilient when a stale copy of this
+ * helper (e.g. left behind by an older deploy that did not clean up removed
+ * files) is already loaded, avoiding a fatal "Cannot redeclare" error.
  */
-function tour_generate_uuid() {
-	return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-		mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
-		mt_rand( 0, 0xffff ),
-		mt_rand( 0, 0x0fff ) | 0x4000,
-		mt_rand( 0, 0x3fff ) | 0x8000,
-		mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
-	);
+if ( ! function_exists( 'tour_generate_uuid' ) ) {
+	function tour_generate_uuid() {
+		return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+			mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
+			mt_rand( 0, 0xffff ),
+			mt_rand( 0, 0x0fff ) | 0x4000,
+			mt_rand( 0, 0x3fff ) | 0x8000,
+			mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
+		);
+	}
 }
 
 /**
  * Format date to DD.MM.YYYY
  */
-function tour_format_date( $date ) {
-	if ( empty( $date ) ) {
-		return null;
-	}
-	$dt = new DateTime( $date );
+if ( ! function_exists( 'tour_format_date' ) ) {
+	function tour_format_date( $date ) {
+		if ( empty( $date ) ) {
+			return null;
+		}
+		$dt = new DateTime( $date );
 
-	return $dt->format( 'd.m.Y' );
+		return $dt->format( 'd.m.Y' );
+	}
 }
 
 /**
  * Format time to HH:MM
  */
-function tour_format_time( $time ) {
-	if ( empty( $time ) ) {
-		return null;
-	}
-	$dt = new DateTime( $time );
+if ( ! function_exists( 'tour_format_time' ) ) {
+	function tour_format_time( $time ) {
+		if ( empty( $time ) ) {
+			return null;
+		}
+		$dt = new DateTime( $time );
 
-	return $dt->format( 'H:i' );
+		return $dt->format( 'H:i' );
+	}
 }
 
 /**
  * Get day name from number
  */
-function tour_get_day_name( $day_num ) {
-	$days = [ 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag' ];
+if ( ! function_exists( 'tour_get_day_name' ) ) {
+	function tour_get_day_name( $day_num ) {
+		$days = [ 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag' ];
 
-	return isset( $days[ $day_num ] ) ? $days[ $day_num ] : '';
+		return isset( $days[ $day_num ] ) ? $days[ $day_num ] : '';
+	}
 }
 
 /**
  * Get type name from number
  */
-function tour_get_type_name( $type_num ) {
-	$types = [ 'Auftritt', 'Infos', 'GV', 'Anderes' ];
+if ( ! function_exists( 'tour_get_type_name' ) ) {
+	function tour_get_type_name( $type_num ) {
+		$types = [ 'Auftritt', 'Infos', 'GV', 'Anderes' ];
 
-	return isset( $types[ $type_num ] ) ? $types[ $type_num ] : '';
+		return isset( $types[ $type_num ] ) ? $types[ $type_num ] : '';
+	}
 }
 
 /**
