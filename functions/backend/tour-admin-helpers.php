@@ -135,16 +135,6 @@ function tour_get_season_filter() {
 }
 
 /**
- * Format a date as d.m.Y.
- *
- * @param string $date Date string.
- * @return string
- */
-function tour_format_date( $date ) {
-	return date( 'd.m.Y', strtotime( $date ) );
-}
-
-/**
  * Format a date range as d.m.Y - d.m.Y.
  *
  * @param string $start Start date.
@@ -152,7 +142,14 @@ function tour_format_date( $date ) {
  * @return string
  */
 function tour_format_date_range( $start, $end ) {
-	return tour_format_date( $start ) . ' - ' . tour_format_date( $end );
+	$start_formatted = tour_format_date( $start );
+	$end_formatted   = tour_format_date( $end );
+
+	if ( ! $start_formatted || ! $end_formatted ) {
+		return '';
+	}
+
+	return $start_formatted . ' - ' . $end_formatted;
 }
 
 /**
