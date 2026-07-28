@@ -65,3 +65,47 @@ if ( ! function_exists( 'tour_get_day_name' ) ) {
 		return isset( $days[ $day_num ] ) ? $days[ $day_num ] : '';
 	}
 }
+
+if ( ! function_exists( 'tour_table_has_column' ) ) {
+	/**
+	 * Check whether a database table has a column.
+	 *
+	 * @param string $table  Table name.
+	 * @param string $column Column name.
+	 * @return bool
+	 */
+	function tour_table_has_column( $table, $column ) {
+		global $wpdb;
+
+		$result = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = %s',
+				DB_NAME,
+				$table,
+				$column
+			)
+		);
+
+		return ! empty( $result );
+	}
+}
+
+if ( ! function_exists( 'tour_get_default_transport' ) ) {
+	/**
+	 * Get the transport marked as default.
+	 *
+	 * @return array|null
+	 */
+	function tour_get_default_transport() {
+		global $wpdb;
+
+		if ( ! tour_table_has_column( TOUR_TRANSPORTS, 'default' ) ) {
+			return null;
+		}
+
+		return $wpdb->get_row(
+			'SELECT * FROM ' . TOUR_TRANSPORTS . ' WHERE `default` = 1 LIMIT 1',
+			ARRAY_A
+		);
+	}
+}
