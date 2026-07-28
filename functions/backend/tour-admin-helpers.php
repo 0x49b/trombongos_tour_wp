@@ -137,11 +137,21 @@ function tour_get_season_filter() {
 /**
  * Format a date as d.m.Y.
  *
- * @param string $date Date string.
- * @return string
+ * @param string|null $date Date string.
+ * @return string|null
  */
 function tour_format_date( $date ) {
-	return date( 'd.m.Y', strtotime( $date ) );
+	if ( empty( $date ) ) {
+		return null;
+	}
+
+	try {
+		$dt = new DateTime( $date );
+	} catch ( Exception $e ) {
+		return null;
+	}
+
+	return $dt->format( 'd.m.Y' );
 }
 
 /**
