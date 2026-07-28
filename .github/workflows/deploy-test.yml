@@ -21,7 +21,9 @@ jobs:
           server: ${{ secrets.SERVER }}
           username: ${{ secrets.USER_TEST }}
           password: ${{ secrets.PASSWORD_TEST }}
-          # dangerous-clean-slate: true
+          # Remove stale files from previous deployments (e.g. deleted PHP files
+          # that would otherwise remain on the server and cause redeclare errors).
+          dangerous-clean-slate: true
           local-dir: ./
           server-dir: ./wp-content/plugins/trombongos_tour_wp/
           exclude: .git*/**

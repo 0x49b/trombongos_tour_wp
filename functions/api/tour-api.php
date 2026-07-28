@@ -29,13 +29,15 @@ function tour_generate_uuid() {
 /**
  * Format date to DD.MM.YYYY
  */
-function tour_format_date( $date ) {
-	if ( empty( $date ) ) {
-		return null;
-	}
-	$dt = new DateTime( $date );
+if ( ! function_exists( 'tour_format_date' ) ) {
+	function tour_format_date( $date ) {
+		if ( empty( $date ) ) {
+			return null;
+		}
+		$dt = new DateTime( $date );
 
-	return $dt->format( 'd.m.Y' );
+		return $dt->format( 'd.m.Y' );
+	}
 }
 
 /**
