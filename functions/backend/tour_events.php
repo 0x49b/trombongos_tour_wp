@@ -256,7 +256,7 @@ $active_season = $wpdb->get_row( "SELECT * FROM " . TOUR_SEASONS . " WHERE activ
 $seasons           = $wpdb->get_results( "SELECT * FROM " . TOUR_SEASONS . " ORDER BY start_date DESC", ARRAY_A );
 $categories        = $wpdb->get_results( "SELECT c.*, s.name as season_name FROM " . TOUR_CATEGORIES . " c LEFT JOIN " . TOUR_SEASONS . " s ON c.season_id = s.id ORDER BY s.start_date DESC, c.sort ASC", ARRAY_A );
 $transports        = $wpdb->get_results( "SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY name ASC", ARRAY_A );
-$default_transport = $wpdb->get_row( "SELECT * FROM " . TOUR_TRANSPORTS . " WHERE `default` = 1 LIMIT 1", ARRAY_A );
+$default_transport = tour_get_default_transport();
 
 // Day names
 $days  = [ 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag' ];

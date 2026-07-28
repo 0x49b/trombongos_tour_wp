@@ -27,39 +27,6 @@ function tour_generate_uuid() {
 }
 
 /**
- * Format date to DD.MM.YYYY
- */
-function tour_format_date( $date ) {
-	if ( empty( $date ) ) {
-		return null;
-	}
-	$dt = new DateTime( $date );
-
-	return $dt->format( 'd.m.Y' );
-}
-
-/**
- * Format time to HH:MM
- */
-function tour_format_time( $time ) {
-	if ( empty( $time ) ) {
-		return null;
-	}
-	$dt = new DateTime( $time );
-
-	return $dt->format( 'H:i' );
-}
-
-/**
- * Get day name from number
- */
-function tour_get_day_name( $day_num ) {
-	$days = [ 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag' ];
-
-	return isset( $days[ $day_num ] ) ? $days[ $day_num ] : '';
-}
-
-/**
  * Get type name from number
  */
 function tour_get_type_name( $type_num ) {

@@ -21,6 +21,12 @@ define( 'TOUR_TRANSPORTS', $wpdb->prefix . 'tour_transports' );
 define( 'TOUR_EVENTS', $wpdb->prefix . 'tour_events' );
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
+					Shared helpers
+\*--------------------------------------------------------------------------------------------------------------------------------------------*/
+require_once plugin_dir_path( __FILE__ ) . 'functions/tour-helpers.php';
+require_once plugin_dir_path( __FILE__ ) . 'functions/backend/tour-admin-helpers.php';
+
+/*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Plugin Scripts & Styles (Backend)
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -75,33 +81,34 @@ function setup_theme_admin_menus() {
 					Backend Functions inkludieren
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
 function tour_overview() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_overview.php" );
 }
 
 function tour_events_page() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_events.php" );
 }
 
 function tour_categories_page() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_categories.php" );
 }
 
 function tour_seasons_page() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_seasons.php" );
 }
 
 function tour_transports_page() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_transports.php" );
 }
 
 function tour_importer_page() {
+	tour_admin_show_notice();
 	include_once( plugin_dir_path( __FILE__ ) . "functions/backend/tour_importer.php" );
 }
-
-/*--------------------------------------------------------------------------------------------------------------------------------------------*\
-					Alle Klassen aus dem Ordner <class> inkludieren
-\*--------------------------------------------------------------------------------------------------------------------------------------------*/
-include_once( plugin_dir_path( __FILE__ ) . "class/class-tour-list-tables.php" );
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					REST API inkludieren
@@ -139,10 +146,12 @@ function tour_create_database_tables() {
       id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
       uuid CHAR(36) NOT NULL,
       name VARCHAR(255) NOT NULL,
+      `default` TINYINT(1) DEFAULT 0 NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
       PRIMARY KEY (id),
-      UNIQUE KEY uuid (uuid)
+      UNIQUE KEY uuid (uuid),
+      KEY `default` (`default`)
     ) $charset_collate;";
 	dbDelta( $sql_transports );
 
@@ -211,57 +220,86 @@ register_activation_hook( __FILE__, 'tour_plugin_activation' );
 /*--------------------------------------------------------------------------------------------------------------------------------------------*\
 					Run Database Migrations
 \*--------------------------------------------------------------------------------------------------------------------------------------------*/
+function tour_prepare_migration_sql( $sql ) {
+	global $wpdb;
+
+	return str_replace( 'wp_tour_', $wpdb->prefix . 'tour_', $sql );
+}
+
+/**
+ * Verify that a migration was actually applied to the current database.
+ *
+ * @param string $migration_name Migration file basename without extension.
+ * @return bool
+ */
+function tour_migration_schema_matches( $migration_name ) {
+	switch ( $migration_name ) {
+		case '05_migration_add_transport_default':
+			return tour_table_has_column( TOUR_TRANSPORTS, 'default' );
+		case '06_migration_add_maps_url':
+			return tour_table_has_column( TOUR_EVENTS, 'maps_url' );
+		default:
+			return true;
+	}
+}
+
 function tour_run_migrations() {
 	global $wpdb;
 
-	// Get the current plugin version
-	$current_version = get_option( 'tour_plugin_version', '0.0' );
-	$new_version     = '3.0';
+	$migration_dir   = plugin_dir_path( __FILE__ ) . 'db_migration/';
+	$migration_files = glob( $migration_dir . '*.sql' );
 
-	// Only run migrations if version has changed
-	if ( version_compare( $current_version, $new_version, '<' ) ) {
-		$migration_dir   = plugin_dir_path( __FILE__ ) . 'db_migration/';
-		$migration_files = glob( $migration_dir . '*.sql' );
+	if ( ! $migration_files ) {
+		return;
+	}
 
-		if ( $migration_files ) {
-			foreach ( $migration_files as $migration_file ) {
-				$migration_name = basename( $migration_file, '.sql' );
+	sort( $migration_files );
 
-				// Check if this migration has already been run
-				$migration_key = 'tour_migration_' . $migration_name;
-				$migration_run = get_option( $migration_key, false );
+	foreach ( $migration_files as $migration_file ) {
+		$migration_name = basename( $migration_file, '.sql' );
+		$migration_key  = 'tour_migration_' . $migration_name;
+		$migration_run  = get_option( $migration_key, false );
 
-				if ( ! $migration_run ) {
-					// Read the SQL file
-					$sql = file_get_contents( $migration_file );
+		if ( $migration_run && tour_migration_schema_matches( $migration_name ) ) {
+			continue;
+		}
 
-					if ( $sql ) {
-						// Split by semicolons to execute multiple statements
-						$statements = array_filter(
-							array_map( 'trim', explode( ';', $sql ) ),
-							function ( $statement ) {
-								// Filter out empty statements and comments
-								return ! empty( $statement ) && strpos( trim( $statement ), '--' ) !== 0;
-							}
-						);
+		if ( $migration_run ) {
+			delete_option( $migration_key );
+		}
 
-						// Execute each statement
-						foreach ( $statements as $statement ) {
-							if ( ! empty( $statement ) ) {
-								$wpdb->query( $statement );
-							}
-						}
+		$sql = tour_prepare_migration_sql( file_get_contents( $migration_file ) );
 
-						// Mark migration as completed
-						update_option( $migration_key, true );
-					}
-				}
+		if ( ! $sql ) {
+			continue;
+		}
+
+		$statements = array_filter(
+			array_map( 'trim', explode( ';', $sql ) ),
+			function ( $statement ) {
+				return ! empty( $statement ) && strpos( trim( $statement ), '--' ) !== 0;
+			}
+		);
+
+		$success = true;
+
+		foreach ( $statements as $statement ) {
+			if ( empty( $statement ) ) {
+				continue;
+			}
+
+			$result = $wpdb->query( $statement );
+			if ( $result === false ) {
+				$success = false;
 			}
 		}
 
-		// Update plugin version
-		update_option( 'tour_plugin_version', $new_version );
+		if ( $success && tour_migration_schema_matches( $migration_name ) ) {
+			update_option( $migration_key, true );
+		}
 	}
+
+	update_option( 'tour_plugin_version', '3.0' );
 }
 
 // Run migrations on plugin update
