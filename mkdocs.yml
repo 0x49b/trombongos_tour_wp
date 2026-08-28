@@ -1,0 +1,27 @@
+site_name: Trombongos Tour Plugin
+site_description: Documentation for the Trombongos Tour WordPress plugin
+site_author: Florian Thiévent
+repo_url: https://github.com/0x49b/trombongos_tour_wp
+repo_name: trombongos_tour_wp
+edit_uri: edit/master/docs/
+
+theme:
+  name: gitbook
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Admin: admin.md
+  - REST API: api.md
+  - Shortcode: shortcode.md
+  - Database: database.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - tables
+  - fenced_code
+  - admonition
