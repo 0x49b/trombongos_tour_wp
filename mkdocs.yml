@@ -1,0 +1,43 @@
+site_name: Trombongos Tour Plugin
+site_description: >-
+  Documentation for the Trombongos Tour Plugin, a WordPress plugin that manages
+  and publishes tour dates (Tourdaten) for the members of Trombongos.
+site_author: Florian Thiévent
+site_url: https://florianthievent.github.io/trombongos_tour_wp/
+
+repo_url: https://github.com/FlorianThievent/trombongos_tour_wp
+repo_name: trombongos_tour_wp
+edit_uri: edit/master/docs/
+
+theme:
+  name: gitbook
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - tables
+  - fenced_code
+  - attr_list
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Configuration: getting-started/configuration.md
+  - User Guide:
+      - Overview: user-guide/overview.md
+      - Seasons: user-guide/seasons.md
+      - Categories: user-guide/categories.md
+      - Events: user-guide/events.md
+      - Transports: user-guide/transports.md
+      - Import: user-guide/import.md
+      - Frontend Shortcode: user-guide/shortcode.md
+  - Reference:
+      - REST API: reference/rest-api.md
+      - Database Schema: reference/database-schema.md
+      - Migrations: reference/migrations.md
+  - Development:
+      - Project Structure: development/project-structure.md
+      - Deployment: development/deployment.md
+      - Documentation: development/documentation.md
