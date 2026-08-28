@@ -1,0 +1,38 @@
+site_name: Trombongos Tour Plugin
+site_description: Dokumentation für das WordPress-Plugin "Trombongos Tour".
+site_author: Florian Thiévent
+site_url: https://tour.trombongos.ch/
+
+repo_url: https://github.com/trombongos/tour
+repo_name: trombongos/tour
+edit_uri: edit/master/docs/
+
+docs_dir: docs
+
+# GitBook theme: https://gitlab.com/lramage/mkdocs-gitbook-theme
+# Installed from PyPI as "mkdocs-gitbook".
+theme:
+  name: gitbook
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - tables
+  - fenced_code
+  - attr_list
+
+nav:
+  - Start: index.md
+  - Installation: installation.md
+  - Administration:
+      - Übersicht: admin/overview.md
+      - Saisons: admin/seasons.md
+      - Kategorien: admin/categories.md
+      - Auftritte: admin/events.md
+      - Transport: admin/transports.md
+      - Import: admin/import.md
+  - Frontend & Shortcode: frontend.md
+  - REST API: api.md
+  - Datenbank: database.md
+  - Entwicklung: development.md

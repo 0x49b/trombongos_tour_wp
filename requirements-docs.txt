@@ -1,0 +1,9 @@
+# Documentation toolchain for the Trombongos Tour plugin.
+# Build the site locally with:
+#   pip install -r requirements-docs.txt
+#   mkdocs serve   # live preview at http://127.0.0.1:8000
+#   mkdocs build   # output to ./site
+
+mkdocs>=1.6,<2.0
+# GitBook theme: https://gitlab.com/lramage/mkdocs-gitbook-theme
+mkdocs-gitbook>=0.0.1
