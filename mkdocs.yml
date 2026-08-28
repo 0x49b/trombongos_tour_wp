@@ -1,0 +1,15 @@
+site_name: Trombongos Tour Plugin
+site_description: WordPress-Plugin zur Verwaltung und Anzeige der Tourdaten der Trombongos
+site_author: Florian Thiévent
+repo_url: https://github.com/0x49b/trombongos_tour_wp
+
+theme:
+  name: gitbook
+
+nav:
+  - Übersicht: index.md
+  - Installation & Deployment: installation.md
+  - Admin-Backend: admin.md
+  - REST API: rest-api.md
+  - Shortcode: shortcode.md
+  - Datenbank & Migrationen: database.md
