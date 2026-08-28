@@ -3,8 +3,8 @@ site_description: Dokumentation für das WordPress-Plugin "Trombongos Tour".
 site_author: Florian Thiévent
 site_url: https://tour.trombongos.ch/
 
-repo_url: https://github.com/trombongos/tour
-repo_name: trombongos/tour
+repo_url: https://github.com/0x49b/trombongos_tour_wp
+repo_name: 0x49b/trombongos_tour_wp
 edit_uri: edit/master/docs/
 
 docs_dir: docs
