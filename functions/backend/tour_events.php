@@ -185,7 +185,7 @@ $active_season = $wpdb->get_row("SELECT * FROM " . TOUR_SEASONS . " WHERE active
 $seasons = $wpdb->get_results("SELECT * FROM " . TOUR_SEASONS . " ORDER BY start_date DESC", ARRAY_A);
 $categories = $wpdb->get_results("SELECT c.*, s.name as season_name FROM " . TOUR_CATEGORIES . " c LEFT JOIN " . TOUR_SEASONS . " s ON c.season_id = s.id ORDER BY s.start_date DESC, c.sort ASC", ARRAY_A);
 $transports = $wpdb->get_results("SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY name ASC", ARRAY_A);
-$default_transport = $wpdb->get_row("SELECT * FROM " . TOUR_TRANSPORTS . " WHERE `default` = 1 LIMIT 1", ARRAY_A);
+$default_transport = $wpdb->get_row("SELECT * FROM " . TOUR_TRANSPORTS . " WHERE is_default = 1 LIMIT 1", ARRAY_A);
 
 // Day names
 $days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
@@ -425,7 +425,7 @@ if (!$form_mode) {
                                                         }
                                                         ?>>
                                                         <?php echo esc_html($transport['name']); ?>
-                                                        <?php if ($transport['default']): ?> (Standard)<?php endif; ?>
+                                                        <?php if ($transport['is_default']): ?> (Standard)<?php endif; ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>

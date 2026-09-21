@@ -22,8 +22,8 @@ if (isset($_POST['tour_transport_action'])) {
             if ($is_default) {
                 $wpdb->update(
                     TOUR_TRANSPORTS,
-                    array('default' => 0),
-                    array('default' => 1),
+                    array('is_default' => 0),
+                    array('is_default' => 1),
                     array('%d'),
                     array('%d')
                 );
@@ -36,7 +36,7 @@ if (isset($_POST['tour_transport_action'])) {
                     array(
                         'uuid' => $uuid,
                         'name' => $name,
-                        'default' => $is_default,
+                        'is_default' => $is_default,
                     ),
                     array('%s', '%s', '%d')
                 );
@@ -52,7 +52,7 @@ if (isset($_POST['tour_transport_action'])) {
                     TOUR_TRANSPORTS,
                     array(
                         'name' => $name,
-                        'default' => $is_default
+                        'is_default' => $is_default
                     ),
                     array('id' => $id),
                     array('%s', '%d'),
@@ -153,7 +153,7 @@ $transports = $wpdb->get_results("SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY
                                                name="transport_default"
                                                id="transport_default"
                                                value="1"
-                                               <?php echo ($edit_transport && $edit_transport['default']) ? 'checked' : ''; ?>>
+                                               <?php echo ($edit_transport && $edit_transport['is_default']) ? 'checked' : ''; ?>>
                                         Als Standard-Transport festlegen
                                     </label>
                                     <p class="description">Wird automatisch bei neuen Auftritten vorausgewählt</p>
@@ -200,7 +200,7 @@ $transports = $wpdb->get_results("SELECT * FROM " . TOUR_TRANSPORTS . " ORDER BY
                                     <tr>
                                         <td><strong><?php echo esc_html($transport['name']); ?></strong></td>
                                         <td>
-                                            <?php if ($transport['default']): ?>
+                                            <?php if ($transport['is_default']): ?>
                                                 <span class="dashicons dashicons-yes" style="color: #00a32a;"></span>
                                             <?php else: ?>
                                                 <span class="dashicons dashicons-no" style="color: #d63638;"></span>

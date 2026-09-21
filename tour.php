@@ -158,6 +158,7 @@ function tour_create_database_tables()
       id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
       uuid CHAR(36) NOT NULL,
       name VARCHAR(255) NOT NULL,
+      is_default TINYINT(1) DEFAULT 0 NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
       PRIMARY KEY (id),
@@ -234,53 +235,47 @@ function tour_run_migrations()
 {
     global $wpdb;
 
-    // Get the current plugin version
-    $current_version = get_option('tour_plugin_version', '0.0');
-    $new_version = '3.0';
+    // Each migration file tracks its own completion via a dedicated option,
+    // so every file is checked on every load rather than gating the whole
+    // batch behind a single plugin-version comparison (a version number that
+    // isn't bumped for every new migration file silently skips it forever).
+    $migration_dir = plugin_dir_path(__FILE__) . 'db_migration/';
+    $migration_files = glob($migration_dir . '*.sql');
 
-    // Only run migrations if version has changed
-    if (version_compare($current_version, $new_version, '<')) {
-        $migration_dir = plugin_dir_path(__FILE__) . 'db_migration/';
-        $migration_files = glob($migration_dir . '*.sql');
+    if ($migration_files) {
+        foreach ($migration_files as $migration_file) {
+            $migration_name = basename($migration_file, '.sql');
 
-        if ($migration_files) {
-            foreach ($migration_files as $migration_file) {
-                $migration_name = basename($migration_file, '.sql');
+            // Check if this migration has already been run
+            $migration_key = 'tour_migration_' . $migration_name;
+            $migration_run = get_option($migration_key, false);
 
-                // Check if this migration has already been run
-                $migration_key = 'tour_migration_' . $migration_name;
-                $migration_run = get_option($migration_key, false);
+            if (!$migration_run) {
+                // Read the SQL file
+                $sql = file_get_contents($migration_file);
 
-                if (!$migration_run) {
-                    // Read the SQL file
-                    $sql = file_get_contents($migration_file);
-
-                    if ($sql) {
-                        // Split by semicolons to execute multiple statements
-                        $statements = array_filter(
-                            array_map('trim', explode(';', $sql)),
-                            function($statement) {
-                                // Filter out empty statements and comments
-                                return !empty($statement) && strpos(trim($statement), '--') !== 0;
-                            }
-                        );
-
-                        // Execute each statement
-                        foreach ($statements as $statement) {
-                            if (!empty($statement)) {
-                                $wpdb->query($statement);
-                            }
+                if ($sql) {
+                    // Split by semicolons to execute multiple statements
+                    $statements = array_filter(
+                        array_map('trim', explode(';', $sql)),
+                        function($statement) {
+                            // Filter out empty statements and comments
+                            return !empty($statement) && strpos(trim($statement), '--') !== 0;
                         }
+                    );
 
-                        // Mark migration as completed
-                        update_option($migration_key, true);
+                    // Execute each statement
+                    foreach ($statements as $statement) {
+                        if (!empty($statement)) {
+                            $wpdb->query($statement);
+                        }
                     }
+
+                    // Mark migration as completed
+                    update_option($migration_key, true);
                 }
             }
         }
-
-        // Update plugin version
-        update_option('tour_plugin_version', $new_version);
     }
 }
 
