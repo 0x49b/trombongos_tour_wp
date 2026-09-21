@@ -146,12 +146,12 @@ function tour_create_database_tables() {
       id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
       uuid CHAR(36) NOT NULL,
       name VARCHAR(255) NOT NULL,
-      `default` TINYINT(1) DEFAULT 0 NOT NULL,
+      is_default TINYINT(1) DEFAULT 0 NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
       PRIMARY KEY (id),
       UNIQUE KEY uuid (uuid),
-      KEY `default` (`default`)
+      KEY is_default (is_default)
     ) $charset_collate;";
 	dbDelta( $sql_transports );
 
@@ -235,7 +235,7 @@ function tour_prepare_migration_sql( $sql ) {
 function tour_migration_schema_matches( $migration_name ) {
 	switch ( $migration_name ) {
 		case '05_migration_add_transport_default':
-			return tour_table_has_column( TOUR_TRANSPORTS, 'default' );
+			return tour_table_has_column( TOUR_TRANSPORTS, 'is_default' );
 		case '06_migration_add_maps_url':
 			return tour_table_has_column( TOUR_EVENTS, 'maps_url' );
 		default:

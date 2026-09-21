@@ -99,12 +99,12 @@ if ( ! function_exists( 'tour_get_default_transport' ) ) {
 	function tour_get_default_transport() {
 		global $wpdb;
 
-		if ( ! tour_table_has_column( TOUR_TRANSPORTS, 'default' ) ) {
+		if ( ! tour_table_has_column( TOUR_TRANSPORTS, 'is_default' ) ) {
 			return null;
 		}
 
 		return $wpdb->get_row(
-			'SELECT * FROM ' . TOUR_TRANSPORTS . ' WHERE `default` = 1 LIMIT 1',
+			'SELECT * FROM ' . TOUR_TRANSPORTS . ' WHERE is_default = 1 LIMIT 1',
 			ARRAY_A
 		);
 	}

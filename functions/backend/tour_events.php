@@ -535,7 +535,7 @@ if ( ! $form_mode ) {
                                                             }
                                                             ?>>
                                                         <?php echo esc_html( $transport['name'] ); ?>
-                                                        <?php if ( $transport['default'] ): ?> (Standard)<?php endif; ?>
+                                                        <?php if ( $transport['is_default'] ): ?> (Standard)<?php endif; ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
